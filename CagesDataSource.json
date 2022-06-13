@@ -1,0 +1,5 @@
+[
+    {"totalValue": 10, "cells": [[0, 0], [1, 0]]},
+    {"totalValue": 19, "cells": [[0, 1], [1, 1], [1,2]]},
+    {"totalValue": 5, "cells": [[0, 2]]}
+]

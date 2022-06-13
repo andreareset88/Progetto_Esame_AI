@@ -1,4 +1,4 @@
-N = 4
+global N
 
 
 def checkBounds(x, y):
@@ -14,9 +14,9 @@ def printChessBoard(chessBoard):
 
 
 """ This function , using forward checking, checks the attempt you're trying to perform; 
- the function will be used when the queens have been placed from
- 0 to N-1 columns, because in this way we can only check the left
- side for attacking attempts """
+    the function will be used when the queens have been placed from
+    0 to N-1 columns, because in this way we can only check the left
+    side for attacking attempts """
 
 
 def checkForwardAttempt(row, column, chessBoard, N):
@@ -56,6 +56,13 @@ def checkForwardAttempt(row, column, chessBoard, N):
     return True
 
 
+""" This method tries the current attempt using the same mechanism 
+    of the AC-3 algorithm used by MAC: for every queen positioned,
+    it detects the forbidden cells in the next right column and, 
+    if no queen can be placed safely, than go back to previous 
+    placed queen and put it in the next available row"""
+
+
 def checkAttemptWithAC3(chessBoard, row, column):
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
@@ -63,6 +70,7 @@ def checkAttemptWithAC3(chessBoard, row, column):
 
     current_row = 0
     columnToScan = column + 1
+    # Scanning the right-up, right and right-down cell
     for index in range(row - 1, row + 2):
         if checkBounds(index, columnToScan):
             chessBoard[index][columnToScan] = 'X'
