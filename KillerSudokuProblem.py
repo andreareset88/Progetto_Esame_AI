@@ -17,12 +17,13 @@ def initializeSudokuGrid():
     sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
     return sudokuGrid
 
+# Checks that each cage doesn't contain duplicated values
 def checkCagesNotContainingDuplicateValues(cages):
     cells = [cell for cage in cages for cell in cage['cells']]
     if len(set(cells)) != len(cells):
         raise ValueError('Not valid json, please remove double coordinates before moving forward')
 
-
+# Add the totalValue values to the 0 grid
 def addTotalValueToEachCage(cages):
     sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
     for cage in cages:
@@ -31,16 +32,19 @@ def addTotalValueToEachCage(cages):
 
     printSudokuGrid(sudokuGrid)
 
+# Checks that there aren't duplicated values in each column
 def checkDoubleValuesInColumns(sudokuGrid, value, j):
     for i in range(0, 9):
         if sudokuGrid[i][j] == value:
             return False
 
+# Checks that there aren't duplicated values in each row
 def checkDoubleValuesInRows(sudokuGrid, value, i):
     for j in range(0, 9):
         if sudokuGrid[i][j] == value:
             return False
 
+# Checks that there aren't duplicated values in each sub-square 3x3
 def checkDoubleValuesInSquares(sudokuGrid, value, i, j):
     i_1 = (i//3) * 3
     j_1 = (j//3) * 3
@@ -49,8 +53,12 @@ def checkDoubleValuesInSquares(sudokuGrid, value, i, j):
             if sudokuGrid[i_1 + row][j_1 + column] == value:
                 return False
 
+# Checks that all the cells in each cage doesn't contain 0 elements
+def checkBoxesNotContainingZero(cageElements):
+    return 0 not in cageElements
 
-def inferenceOnAvailablePossibleAssignments(i, j, value, sudokuGrid, setOfCells):
+
+def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
 
     checkDoubleValuesInSquares(sudokuGrid, value, i, j)
     checkDoubleValuesInRows(sudokuGrid, value, i)
@@ -72,6 +80,51 @@ def inferenceOnAvailablePossibleAssignments(i, j, value, sudokuGrid, setOfCells)
     if sumToCheck > currentCage['totalValue']:
         return False
 
+    if checkBoxesNotContainingZero(cage_elements):
+        if currentCage['totalValue'] != sumToCheck:
+            return False
+
+        if len(set(cage_elements)) != len(cage_elements):
+            return False
+
+    return True
+
+def check(i, j):
+    return i > 0 and j > 0
+
+
+def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
+
+    currentCage = setOfCells[(i, j)]
+
+    # Scorri tutte le celle di un cage a partire dalla colonna più a sx e trova
+    # gli indici più piccoli delle celle del cage corrente.
+    minColumnIndexForCellsInCages = 1
+    minRowIndexForCellsInCages = 1
+    for row, column in currentCage['cells']:
+        if column <= minColumnIndexForCellsInCages and row <= minRowIndexForCellsInCages:
+            minRowIndexForCellsInCages = row
+            minColumnIndexForCellsInCages = column
+
+    cageAdjacentCells = list()
+
+    # Scandisci tutti gli elementi adiacenti (pur sempre nello stesso cage)
+    for row, column in currentCage['cells']:
+        # Scorriamo gli elementi nello stesso cage, controllando la colonna adiacente,
+        # la riga sotto e la riga sopra
+        if sudokuGrid[row][column] != 0 and row == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages + 1:
+            cageAdjacentCells.append([row, column])
+        if sudokuGrid[row][column] != 0 and row - 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
+            cageAdjacentCells.append([row, column])
+        if sudokuGrid[row][column] != 0 and row + 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
+            cageAdjacentCells.append([row, column])
+
+    # Occorre controllare, prima di inserire il valore, che esso rispetti i vincoli
+    # imposti sulla griglia
+
+
+
+
 
 
 
@@ -81,7 +134,7 @@ def callBacktrack(setOfCells):
         for j in range(9):
             if sudokuGrid[i][j] == 0:
                 for value in range(1, 10):
-                    if inferenceOnAvailablePossibleAssignments(i, j, sudokuGrid, setOfCells):
+                    if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
                         sudokuGrid[i][j] = value
                         callBacktrack(setOfCells)
                         sudokuGrid[i][j] = 0
@@ -102,6 +155,7 @@ addTotalValueToEachCage(cages)
 
 sudokuGrid = initializeSudokuGrid()
 
+# All the cells of all cages
 setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
 callBacktrack()
