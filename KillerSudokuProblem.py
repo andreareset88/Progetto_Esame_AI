@@ -33,19 +33,19 @@ def addTotalValueToEachCage(cages):
     printSudokuGrid(sudokuGrid)
 
 # Checks that there aren't duplicated values in each column
-def checkDoubleValuesInColumns(sudokuGrid, value, j):
+def checkDuplicatedValuesInColumns(sudokuGrid, value, j):
     for i in range(0, 9):
         if sudokuGrid[i][j] == value:
             return False
 
 # Checks that there aren't duplicated values in each row
-def checkDoubleValuesInRows(sudokuGrid, value, i):
+def checkDuplicatedValuesInRows(sudokuGrid, value, i):
     for j in range(0, 9):
         if sudokuGrid[i][j] == value:
             return False
 
 # Checks that there aren't duplicated values in each sub-square 3x3
-def checkDoubleValuesInSquares(sudokuGrid, value, i, j):
+def checkDuplicatedValuesInSquares(sudokuGrid, value, i, j):
     i_1 = (i//3) * 3
     j_1 = (j//3) * 3
     for row in range(0, 3):
@@ -60,9 +60,9 @@ def checkBoxesNotContainingZero(cageElements):
 
 def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
 
-    checkDoubleValuesInSquares(sudokuGrid, value, i, j)
-    checkDoubleValuesInRows(sudokuGrid, value, i)
-    checkDoubleValuesInColumns(sudokuGrid, value, j)
+    checkDuplicatedValuesInSquares(sudokuGrid, value, i, j)
+    checkDuplicatedValuesInRows(sudokuGrid, value, i)
+    checkDuplicatedValuesInColumns(sudokuGrid, value, j)
 
     currentCage = setOfCells[(i, j)]
 
@@ -97,8 +97,10 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
 
     currentCage = setOfCells[(i, j)]
 
-    # Scorri tutte le celle di un cage a partire dalla colonna più a sx e trova
-    # gli indici più piccoli delle celle del cage corrente.
+
+    # Scan all the cells of each cage, starting from the column at the leftmost position
+    # and find the couple of indexes that represents the indexes of the leftmost cell
+    # of the cage
     minColumnIndexForCellsInCages = 1
     minRowIndexForCellsInCages = 1
     for row, column in currentCage['cells']:
@@ -108,10 +110,11 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
 
     cageAdjacentCells = list()
 
-    # Scandisci tutti gli elementi adiacenti (pur sempre nello stesso cage)
+    # Scan all the elements of the cage, in order to find the adjacent ones
     for row, column in currentCage['cells']:
-        # Scorriamo gli elementi nello stesso cage, controllando la colonna adiacente,
-        # la riga sotto e la riga sopra
+
+        # Scanning the elements on the same cage, checking the above and below row,
+        # and the adjacent column
         if sudokuGrid[row][column] != 0 and row == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages + 1:
             cageAdjacentCells.append([row, column])
         if sudokuGrid[row][column] != 0 and row - 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
@@ -119,11 +122,29 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
         if sudokuGrid[row][column] != 0 and row + 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
             cageAdjacentCells.append([row, column])
 
-    # Occorre controllare, prima di inserire il valore, che esso rispetti i vincoli
-    # imposti sulla griglia
 
+    # Before insert the value, check that it satisfies the constraints
+    # existing on the grid
 
+    # Collect adjacent cells without value
 
+    adjacentCellsWithoutValue = list()
+    for row, column in cageAdjacentCells:
+        if sudokuGrid[row][column] == 0:
+            adjacentCellsWithoutValue.append([row, column])
+
+    # Iterate on all the adjacent cells and verify if the value can be assigned
+    # to one of these cells, otherwise re-iterate on those cells
+    for row, column in adjacentCellsWithoutValue:
+
+        isDuplicatedValuesInSquare = checkDuplicatedValuesInSquares(sudokuGrid, value, i, j)
+        isDuplicatedValuesInRow = checkDuplicatedValuesInRows(sudokuGrid, value, i)
+        isDuplicatedValuesInColumn = checkDuplicatedValuesInColumns(sudokuGrid, value, j)
+
+        if isDuplicatedValuesInSquare and isDuplicatedValuesInRow and isDuplicatedValuesInColumn:
+            sudokuGrid[row][column] = value
+        else:
+            inferenceOnPossibleAssignmentsWithMAC(row, column, value, sudokuGrid, setOfCells)
 
 
 

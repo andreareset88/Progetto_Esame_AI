@@ -25,10 +25,12 @@ def checkForwardAttempt(row, column, chessBoard, N):
         if chessBoard[row][i] == 1:
             return False
 
+    # Left down diagonal
     for i, j in zip(range(row, N, 1), range(column, 1, 1)):
         if chessBoard[i][j] == 1:
             return False
 
+    # Left up diagonal
     for i, j in zip(range(row, 1, 1), range(column, 1, 1)):
         if chessBoard[i][j] == 1:
             return False
