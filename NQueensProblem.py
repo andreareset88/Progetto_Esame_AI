@@ -20,42 +20,75 @@ def printChessBoard(chessBoard):
 
 
 def checkForwardAttempt(row, column, chessBoard, N):
-    # Left check version
-    for i in range(column):
-        if chessBoard[row][i] == 1:
-            return False
 
-    # Left down diagonal
-    for i, j in zip(range(row, N, 1), range(column, 1, 1)):
-        if chessBoard[i][j] == 1:
-            return False
+    result = True
 
-    # Left up diagonal
-    for i, j in zip(range(row, 1, 1), range(column, 1, 1)):
-        if chessBoard[i][j] == 1:
-            return False
-
-    # Right check version
-    # Checks the line on the right side
+    # Mark the line on the right side as unavailable
     for i in range(column + 1, N):
-        if chessBoard[row][i] == 1:
-            return False
+        chessBoard[row][i] = 'X'
 
-    # Checks the right-upper diagonal
+    # Mark the right-upper diagonal as unavailable
     for index in range(1, N):
         index_row = row - index
         index_col = column + index
-        if checkBounds(index_row, index_col) and chessBoard[index_row][index_col] == 1:
-            return False
+        if checkBounds(index_row, index_col):
+            chessBoard[index_row][index_col] = 'X'
 
-    # Checks the right-down diagonal
+    # Mark the right-down diagonal as unavailable
     for index in range(1, N):
         index_row = row + index
         index_col = column + index
-        if checkBounds(index_row, index_col) and chessBoard[index_row][index_col] == 1:
-            return False
+        if checkBounds(index_row, index_col):
+            chessBoard[index_row][index_col] = 'X'
 
-    return True
+    numOfFreeCells = {}
+
+    # Iterate on the columns in order to find the number of available cells
+    # for each column
+    # Create a dictionary that has the columns at right as key and the number
+    # of available cells on that column as value
+    cellsNotAvailable = 0
+    while column + 1 < N:
+        currentColumn = column + 1
+        for row in range(N):
+            cellsNotAvailable += 1
+
+        numOfFreeCells[currentColumn] = N - cellsNotAvailable
+
+        column = column + 1
+
+    # Find the column with the least number of available cells
+    numOfMinCellsAvailable = N
+    valueScanned = 0
+    indexScanned = 0
+    for i in range(len(numOfFreeCells)):
+        valueScanned = numOfFreeCells[i]
+        if valueScanned < numOfMinCellsAvailable:
+            numOfMinCellsAvailable = valueScanned
+            indexScanned = i
+
+    # columnToInsertValue is the column with the least number of available cells
+    columnToInsertValue = indexScanned
+    for i in range(N):
+
+
+        if numOfMinCellsAvailable > 1:
+            if chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
+                chessBoard[i][columnToInsertValue] = 'Q'
+                # Reset the dictionary, valueScanned, indexScanned and the chess board
+                numOfFreeCells = {}
+                indexScanned = 0
+                valueScanned = 0
+                numOfMinCellsAvailable = N
+                return checkForwardAttempt(i, columnToInsertValue, chessBoard, N)
+        else:
+            if numOfMinCellsAvailable == 1 and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
+                chessBoard[i][columnToInsertValue] = 'Q'
+                return True
+
+    return False
+
+
 
 
 """ This method tries the current attempt using the same mechanism 
@@ -116,9 +149,13 @@ def findSolutionWithBacktracking(chessBoard, column):
     # Further checks to evaluate if the queen can be positioned
     # in other remaining possibilities
     for i in range(N):
-        if checkForwardAttempt(i, column, chessBoard, N):
+         if checkForwardAttempt(i, column, chessBoard, N):
             # Queen is positioned
             chessBoard[i][column] = 1
+
+        # if checkAttemptWithAC3(chessBoard, i, column)
+        # Queen is positioned
+        #     chessBoard[i][column] = 1
 
         # Recursive invocation for the remaining queens
         if findSolutionWithBacktracking(chessBoard, column + 1):
