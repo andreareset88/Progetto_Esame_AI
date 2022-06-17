@@ -20,7 +20,6 @@ def printChessBoard(chessBoard):
 
 
 def checkForwardAttempt(row, column, chessBoard, N):
-
     result = True
 
     # Mark the line on the right side as unavailable
@@ -71,7 +70,6 @@ def checkForwardAttempt(row, column, chessBoard, N):
     columnToInsertValue = indexScanned
     for i in range(N):
 
-
         if numOfMinCellsAvailable > 1:
             if chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
                 chessBoard[i][columnToInsertValue] = 'Q'
@@ -87,8 +85,6 @@ def checkForwardAttempt(row, column, chessBoard, N):
                 return True
 
     return False
-
-
 
 
 """ This method tries the current attempt using the same mechanism 
@@ -142,20 +138,20 @@ def checkAttemptWithAC3(chessBoard, row, column):
 
 def findSolutionWithBacktracking(chessBoard, column):
     # Returns true if the queens are positioned
-    if column >= N:
+    if column >= 0:
         printChessBoard(chessBoard)
         return True
 
     # Further checks to evaluate if the queen can be positioned
     # in other remaining possibilities
     for i in range(N):
-         if checkForwardAttempt(i, column, chessBoard, N):
+        if checkForwardAttempt(i, column, chessBoard, N):
             # Queen is positioned
             chessBoard[i][column] = 1
 
-        # if checkAttemptWithAC3(chessBoard, i, column)
-        # Queen is positioned
-        #     chessBoard[i][column] = 1
+        """if checkAttemptWithAC3(chessBoard, i, column):
+            # Queen is positioned
+            chessBoard[i][column] = 1"""
 
         # Recursive invocation for the remaining queens
         if findSolutionWithBacktracking(chessBoard, column + 1):

@@ -79,7 +79,7 @@ def checkForwardAttempt(row, column, chessBoard, N):
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, N):
-        if checkForCurrentCellFeasible(chessBoard,row, i):
+        if checkForCurrentCellFeasible(chessBoard, row, i):
             chessBoard[row][i] = 'X'
 
     # Mark the right-upper diagonal as unavailable
