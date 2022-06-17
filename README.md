@@ -4,7 +4,7 @@ Questo elaborato, nell'ambito dell'esame di Intelligenza Artificiale, consiste n
 come strategie di propagazione dei vincoli, al fine di trovare la soluzione a 3 CSP scelti a piacere da CSPLib (https://www.csplib.org/).
 All'interno sono contenuti i seguenti file python:
 
-1. NQueensProblem.py: Questo modulo contiene il codice sviluppato per risolvere il problema delle n regine. Il metodo checkForwardAttempt() si occupa di propagare i vincoli,
+1. NQueensProblem.py: Questo modulo contiene il codice sviluppato per risolvere il problema delle n regine (https://www.csplib.org/Problems/prob054/). Il metodo checkForwardAttempt() si occupa di propagare i vincoli,
 ogni qualvolta una regina viene posizionata sulla scacchiera, usando il meccanismo del forward checking, andando a segnare le caselle interessate dai vincoli con delle 'X'.
 Il metodo checkAttemptWithAC3() tenta la mossa corrente usando lo stesso meccanismo di AC-3 usato da MAC: ogni volta che piazza una regina, controlla le celle "illegali"
 nella successiva colonna di destra e, se nessuna regina può esservi piazzata in modo sicuro, torna indietro alla precedente regina e prova a spostarla nella successiva riga disponibile.
