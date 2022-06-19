@@ -1,8 +1,8 @@
-global N
+N = 4
 
 
 def checkBounds(x, y):
-    return x > 0 and y > 0
+    return 0 < x <= N - 1 and 0 < y <= N - 1
 
 
 # Function that prints the current layout of the chess board
@@ -50,9 +50,12 @@ def checkForwardAttempt(row, column, chessBoard, N):
     while column + 1 < N:
         currentColumn = column + 1
         for row in range(N):
-            cellsNotAvailable += 1
+            if chessBoard[row][currentColumn] == 'X':
+                cellsNotAvailable += 1
 
         numOfFreeCells[currentColumn] = N - cellsNotAvailable
+
+        cellsNotAvailable = 0
 
         column = column + 1
 
@@ -60,7 +63,8 @@ def checkForwardAttempt(row, column, chessBoard, N):
     numOfMinCellsAvailable = N
     valueScanned = 0
     indexScanned = 0
-    for i in range(len(numOfFreeCells)):
+    # for i in range(1, len(numOfFreeCells)):
+    for i in numOfFreeCells.keys():
         valueScanned = numOfFreeCells[i]
         if valueScanned < numOfMinCellsAvailable:
             numOfMinCellsAvailable = valueScanned
@@ -80,7 +84,8 @@ def checkForwardAttempt(row, column, chessBoard, N):
                 numOfMinCellsAvailable = N
                 return checkForwardAttempt(i, columnToInsertValue, chessBoard, N)
         else:
-            if numOfMinCellsAvailable == 1 and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
+            if numOfMinCellsAvailable == 1 and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][
+                columnToInsertValue] != 'Q':
                 chessBoard[i][columnToInsertValue] = 'Q'
                 return True
 
@@ -138,8 +143,8 @@ def checkAttemptWithAC3(chessBoard, row, column):
 
 def findSolutionWithBacktracking(chessBoard, column):
     # Returns true if the queens are positioned
-    if column >= 0:
-        printChessBoard(chessBoard)
+    if column >= N:
+        # printChessBoard(chessBoard)
         return True
 
     # Further checks to evaluate if the queen can be positioned
@@ -160,3 +165,17 @@ def findSolutionWithBacktracking(chessBoard, column):
         chessBoard[i][column] = 0
 
     return False
+
+
+def main():
+    chessBoard = [['Q', 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+
+    result = findSolutionWithBacktracking(chessBoard, 0)
+    if not result:
+        print('It does not exist a solution')
+    printChessBoard(chessBoard)
+    return True
+
+
+if __name__ == '__main__':
+    main()
