@@ -77,6 +77,11 @@ def OLDcheckForwardAttempt(row, column, chessBoard, N):
 def checkForwardAttempt(row, column, chessBoard, N):
     result = True
 
+    # Variables used to remember the row and column to which we have to backtrack
+    # in case we find an "illegal" column with no available cells
+    backupRowForBacktracking = row
+    backupColumnForBacktracking = column
+
     # Mark the line on the right side as unavailable
     for i in range(column + 1, N):
         if checkForCurrentCellFeasible(chessBoard, row, i):
@@ -103,6 +108,7 @@ def checkForwardAttempt(row, column, chessBoard, N):
     # Create a dictionary that has the columns at right as key and the number
     # of available cells on that column as value
     cellsNotAvailable = 0
+
     while column + 1 < N:
         currentColumn = column + 1
         for row in range(N):
