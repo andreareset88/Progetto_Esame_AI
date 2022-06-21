@@ -22,6 +22,7 @@ def printChessBoard(chessBoard, n):
     side for attacking attempts """
 
 
+# TODO al passo 7 della figura cancella la cella [3,3] invece di lasciare X
 def checkForwardAttempt(row, column, chessBoard, n):
     result = True
     
@@ -30,27 +31,28 @@ def checkForwardAttempt(row, column, chessBoard, n):
     backupRowForBacktracking = row
     backupColumnForBacktracking = column
 
+    placeholder = str(row)+str(column)
+
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
-        # We use x lower case because it is only temporary
-        if chessBoard[row][i] != 'X':
-            chessBoard[row][i] = 'x'
+        if chessBoard[row][i] == '':  # TODO errore "list index out of range"
+            chessBoard[row][i] = placeholder
 
     # Mark the right-upper diagonal as unavailable
     for index in range(1, n):
         index_row = row - index
         index_col = column + index
-        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] != 'X':
+        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
             # We use x lower case because it is only temporary
-            chessBoard[index_row][index_col] = 'x'
+            chessBoard[index_row][index_col] = placeholder
 
     # Mark the right-down diagonal as unavailable
     for index in range(1, n):
         index_row = row + index
         index_col = column + index
-        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] != 'X':
+        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
             # We use x lower case because it is only temporary
-            chessBoard[index_row][index_col] = 'x'
+            chessBoard[index_row][index_col] = placeholder
 
     numOfFreeCells = {}
 
@@ -58,12 +60,15 @@ def checkForwardAttempt(row, column, chessBoard, n):
     # for each column
     # Create a dictionary that has the columns at right as key and the number
     # of available cells on that column as value
+
+    # Number of cells not available
     cellsNotAvailable = 0
     conditionForBacktracking = False
     while column + 1 < n:
         currentColumn = column + 1
+        # Check, for each column, the rows
         for row in range(n):
-            if chessBoard[row][currentColumn] == 'X' or chessBoard[row][currentColumn] == 'x':
+            if chessBoard[row][currentColumn] != '':
                 cellsNotAvailable += 1
 
         if cellsNotAvailable == n:
@@ -91,7 +96,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
     for i in range(n):
 
         if numOfMinCellsAvailable > 0 and not conditionForBacktracking:
-            if chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'x' and chessBoard[i][columnToInsertValue] != 'Q':
+            if chessBoard[i][columnToInsertValue] == '':
                 chessBoard[i][columnToInsertValue] = 'Q'
 
                 # Reset the dictionary, freeCellsForColumnI, indexScanned and the chess board
@@ -100,31 +105,59 @@ def checkForwardAttempt(row, column, chessBoard, n):
                 freeCellsForColumnI = 0
                 numOfMinCellsAvailable = n
 
-                # Traslate the temporary values in the final values
-                for k in range(n):
-                    for m in range(n):
-                        if chessBoard[k][m] == 'x':
-                            chessBoard[k][m] = 'X'
+                # Erase the temporary placeholder 'x'
+                # for k in range(n):
+                #     for m in range(n):
+                #         if chessBoard[k][m] == 'x':
+                #             chessBoard[k][m] = 'X'
 
                 return checkForwardAttempt(i, columnToInsertValue, chessBoard, n)
         else:
             if conditionForBacktracking:  # and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
                 # Tolgo la 'Q' e rimetto 0 per il backtracking
-                chessBoard[backupRowForBacktracking][backupColumnForBacktracking] = 0
+                chessBoard[backupRowForBacktracking][backupColumnForBacktracking] = ''
+
+                # Rimuovi i vincoli associati ad una regina cancellata
+                for a in range(n):
+                    for b in range(n):
+                        if chessBoard[a][b] == placeholder:
+                            chessBoard[a][b] = ''
 
                 rowAfterBacktracking = backupRowForBacktracking + 1
+                # Check the previous column in order to reach the position of the queen
 
                 indexTillLastRow = rowAfterBacktracking
+                countCellsNotAvailableOnBacktrackingColumn = 0
                 while indexTillLastRow < n:
-                    if checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] != 'X' and chessBoard[indexTillLastRow][backupColumnForBacktracking] != 'x':
+                    if checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] == '':
                         chessBoard[rowAfterBacktracking][backupColumnForBacktracking] = 'Q'
                         break
+                    elif checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '':
+                        countCellsNotAvailableOnBacktrackingColumn += 1
+
                     indexTillLastRow += 1
 
-                for k in range(n):
-                    for m in range(n):
-                        if chessBoard[k][m] == 'x':
-                            chessBoard[k][m] = 0
+                # If in the current column you can't place any queen, step 1 column back
+                if countCellsNotAvailableOnBacktrackingColumn == n - backupRowForBacktracking - 1:
+                    backupColumnForBacktracking -= 1
+                    # k è l'indice della riga dove si trova la regina (nella colonna precedente)
+                    for k in range(n):
+                        if chessBoard[k][backupColumnForBacktracking] == 'Q':
+                            rowAfterBacktracking = k
+
+                            chessBoard[k][backupColumnForBacktracking] = ''
+
+                            # Rimuovi i vincoli associati ad una regina cancellata
+                            for a in range(n):
+                                for b in range(n):
+                                    if chessBoard[a][b] == str(k)+str(backupColumnForBacktracking):
+                                        chessBoard[a][b] = ''
+
+                # Erase the temporary placeholder 'x'
+                # for k in range(n):
+                #     for m in range(n):
+                #         if chessBoard[k][m] == 'x':
+                #             chessBoard[k][m] = 0
 
                 return checkForwardAttempt(rowAfterBacktracking, backupColumnForBacktracking, chessBoard, n)
 
@@ -138,7 +171,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
     placed queen and put it in the next available row"""
 
 
-def checkAttemptWithAC3(chessBoard, row, column, n):
+def checkAttemptWithMAC(chessBoard, row, column, n):
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
     # 3 positions)
@@ -177,7 +210,7 @@ def checkAttemptWithAC3(chessBoard, row, column, n):
                 rowForRecursiveCall = indexToInsertQueen
                 columnForRecursiveCall = columnBack
 
-    return checkAttemptWithAC3(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
+    return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
 
 
 def findSolutionWithBacktrackingFC(chessBoard, column, n):
@@ -215,7 +248,7 @@ def findSolutionWithBacktrackingMAC(chessBoard, column, n):
     # Further checks to evaluate if the queen can be positioned
     # in other remaining possibilities
     for i in range(n):
-        if checkAttemptWithAC3(chessBoard, i, column, n):
+        if checkAttemptWithMAC(chessBoard, i, column, n):
             # Queen is positioned
             chessBoard[i][column] = 1
             # Recursive invocation for the remaining queens
@@ -228,7 +261,7 @@ def findSolutionWithBacktrackingMAC(chessBoard, column, n):
 
 
 def main():
-    chessBoard = [['Q', 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     version = int(input("Press 1 for FC, 2 for MAC:"))
     if version == 1:
         result = findSolutionWithBacktrackingFC(chessBoard, 0, N)
