@@ -22,7 +22,7 @@ def printChessBoard(chessBoard, n):
     side for attacking attempts """
 
 
-# TODO al passo 7 della figura cancella la cella [3,3] invece di lasciare X
+# TODO Non fa scendere la regina nella prima colonna, ed entra in un loop infinto
 def checkForwardAttempt(row, column, chessBoard, n):
     result = True
     
