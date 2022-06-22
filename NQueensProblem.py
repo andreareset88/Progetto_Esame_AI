@@ -5,7 +5,7 @@ N = 4
 
 
 def checkBounds(x, y, n):
-    return 0 < x <= n - 1 and 0 < y <= n - 1
+    return 0 <= x <= n - 1 and 0 <= y <= n - 1
 
 
 # Function that prints the current layout of the chess board
@@ -85,6 +85,10 @@ def checkForwardAttempt(row, column, chessBoard, n):
     freeCellsForColumnI = 0
     indexScanned = 0
     # for i in range(1, len(numOfFreeCells)):
+
+    if bool(numOfFreeCells):
+        return True
+
     for i in numOfFreeCells.keys():
         freeCellsForColumnI = numOfFreeCells[i]
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
@@ -114,52 +118,87 @@ def checkForwardAttempt(row, column, chessBoard, n):
                 return checkForwardAttempt(i, columnToInsertValue, chessBoard, n)
         else:
             if conditionForBacktracking:  # and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
-                # Tolgo la 'Q' e rimetto 0 per il backtracking
-                chessBoard[backupRowForBacktracking][backupColumnForBacktracking] = ''
 
-                # Rimuovi i vincoli associati ad una regina cancellata
-                for a in range(n):
-                    for b in range(n):
-                        if chessBoard[a][b] == placeholder:
-                            chessBoard[a][b] = ''
+                toContinue = True
+                rowForQueenFound = 0
+                while backupColumnForBacktracking >= 0 and toContinue:
 
-                rowAfterBacktracking = backupRowForBacktracking + 1
-                # Check the previous column in order to reach the position of the queen
-
-                indexTillLastRow = rowAfterBacktracking
-                countCellsNotAvailableOnBacktrackingColumn = 0
-                while indexTillLastRow < n:
-                    if checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] == '':
-                        chessBoard[rowAfterBacktracking][backupColumnForBacktracking] = 'Q'
-                        break
-                    elif checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '':
-                        countCellsNotAvailableOnBacktrackingColumn += 1
-
-                    indexTillLastRow += 1
-
-                # If in the current column you can't place any queen, step 1 column back
-                if countCellsNotAvailableOnBacktrackingColumn == n - backupRowForBacktracking - 1:
-                    backupColumnForBacktracking -= 1
-                    # k è l'indice della riga dove si trova la regina (nella colonna precedente)
+                    # Search for queen in column backupColumnForBacktracking
                     for k in range(n):
                         if chessBoard[k][backupColumnForBacktracking] == 'Q':
-                            rowAfterBacktracking = k
+                            rowForQueenFound = k
+                            break
 
-                            chessBoard[k][backupColumnForBacktracking] = ''
 
-                            # Rimuovi i vincoli associati ad una regina cancellata
-                            for a in range(n):
-                                for b in range(n):
-                                    if chessBoard[a][b] == str(k)+str(backupColumnForBacktracking):
-                                        chessBoard[a][b] = ''
+                    # Remove 'Q'
+                    chessBoard[rowForQueenFound][backupColumnForBacktracking] = ''
 
-                # Erase the temporary placeholder 'x'
-                # for k in range(n):
-                #     for m in range(n):
-                #         if chessBoard[k][m] == 'x':
-                #             chessBoard[k][m] = 0
+                    # Rimuovi i vincoli associati ad una regina cancellata
+                    for a in range(n):
+                        for b in range(n):
+                            if chessBoard[a][b] == str(rowForQueenFound)+str(backupColumnForBacktracking):
+                                chessBoard[a][b] = ''
 
-                return checkForwardAttempt(rowAfterBacktracking, backupColumnForBacktracking, chessBoard, n)
+                    rowForQueenFound += 1
+                    if rowForQueenFound == n:
+                        backupColumnForBacktracking -= 1
+                    else:
+                        for row in range(rowForQueenFound, n):
+                            if chessBoard[row][backupColumnForBacktracking] == '':
+                                chessBoard[row][backupColumnForBacktracking] = 'Q'
+                                toContinue = False
+                                break
+                            elif row == n - 1 and chessBoard[row][backupColumnForBacktracking] != '' and chessBoard[row][backupColumnForBacktracking] != 'Q':
+                                backupColumnForBacktracking -= 1
+
+
+
+                # rowAfterBacktracking = backupRowForBacktracking + 1
+                # # Check the previous column in order to reach the position of the queen
+                #
+                # indexTillLastRow = rowAfterBacktracking
+                # countCellsNotAvailableOnBacktrackingColumn = 0
+                # while indexTillLastRow < n:
+                #     if checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] == '':
+                #         chessBoard[indexTillLastRow][backupColumnForBacktracking] = 'Q'
+                #         break
+                #     elif indexTillLastRow == n-1 and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '' and chessBoard[indexTillLastRow][backupColumnForBacktracking] != 'Q':
+                #         backupColumnForBacktracking -= 1
+                #
+                #         for k in range(n):
+                #             if chessBoard[k][backupColumnForBacktracking] == 'Q':
+                #                 rowAfterBacktracking = k
+                #
+                #                 chessBoard[k][backupColumnForBacktracking] = ''
+                #
+                #                 # Rimuovi i vincoli associati ad una regina cancellata
+                #                 for a in range(n):
+                #                     for b in range(n):
+                #                         if chessBoard[a][b] == str(k) + str(backupColumnForBacktracking):
+                #                             chessBoard[a][b] = ''
+                #
+                #     # elif checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '':
+                #         # countCellsNotAvailableOnBacktrackingColumn += 1
+                #
+                #     indexTillLastRow += 1
+                #
+                # # If in the current column you can't place any queen, step 1 column back
+                # if countCellsNotAvailableOnBacktrackingColumn == n - backupRowForBacktracking - 1:
+                #     # backupColumnForBacktracking -= 1
+                #     # k è l'indice della riga dove si trova la regina (nella colonna precedente)
+                #     # for k in range(n):
+                #     #     if chessBoard[k][backupColumnForBacktracking] == 'Q':
+                #     #         rowAfterBacktracking = k
+                #     #
+                #     #         chessBoard[k][backupColumnForBacktracking] = ''
+                #     #
+                #     #         # Rimuovi i vincoli associati ad una regina cancellata
+                #     #         for a in range(n):
+                #     #             for b in range(n):
+                #     #                 if chessBoard[a][b] == str(k)+str(backupColumnForBacktracking):
+                #     #                     chessBoard[a][b] = ''
+
+                return checkForwardAttempt(rowForQueenFound, backupColumnForBacktracking, chessBoard, n)
 
     return False
 
