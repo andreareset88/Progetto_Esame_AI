@@ -27,6 +27,8 @@ def printChessBoard(chessBoard, n):
 def checkForwardAttempt(row, column, chessBoard, n):
     result = True
 
+    # When we are at the last column, we check that each previous column has a queen positioned, so
+    # the algorithm is finished and the program exits printing the chess board
     if column == n - 1:
         queenInLastColumn = False
         for i in range(n):
@@ -228,18 +230,31 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
 
     current_row = 0
     columnToScan = column + 1
+
+    placeholder = str(row) + str(column)
+
     # Scanning the right-up, right and right-down cell
     for index in range(row - 1, row + 2):
         if checkBounds(index, columnToScan, n):
-            chessBoard[index][columnToScan] = 'X'
+            chessBoard[index][columnToScan] = placeholder
         current_row = index
 
+    # next_row is the row of the right - adjacent column in which to position the queen
     next_row = current_row + 1
 
-    isPlaceable = True
-    for i in range(1, n):
-        if chessBoard[next_row][i] == 1 and i != columnToScan:
-            isPlaceable = False
+    # Scan the right - adjacent column from next_row to the last row to find if it's possible
+    # to fill in a queen
+    isPlaceable = False
+    for i in range(n):
+        if chessBoard[i][columnToScan] == '':  # and i != columnToScan
+            # When a cell is free to be inserted a queen, we check if that row already contains a queen
+            for j in reversed(range(columnToScan)):
+                if chessBoard[i][j] == '':
+                    isPlaceable = True
+                elif chessBoard[i][j] != '' or chessBoard[i][j] == 'Q':
+                    isPlaceable = False
+                    break
+
 
     rowForRecursiveCall = 0
     columnForRecursiveCall = 0
@@ -254,11 +269,24 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             # Go back 1 column
             columnBack = columnToScan - 1
             if chessBoard[index][columnBack] == 'Q':
-                chessBoard[index][columnBack] = 0
+                chessBoard[index][columnBack] = ''
+
+                # Rimuovi i vincoli associati ad una regina cancellata
+                for a in range(n):
+                    for b in range(n):
+                        if chessBoard[a][b] == str(index) + str(columnBack):
+                            chessBoard[a][b] = ''
+
                 indexToInsertQueen = index + 1
-                chessBoard[indexToInsertQueen][columnBack] = 'Q'
-                rowForRecursiveCall = indexToInsertQueen
-                columnForRecursiveCall = columnBack
+
+                if checkBounds(indexToInsertQueen, columnBack, n):
+                    chessBoard[indexToInsertQueen][columnBack] = 'Q'
+                    rowForRecursiveCall = indexToInsertQueen
+                    columnForRecursiveCall = columnBack
+                else:
+                    rowForRecursiveCall = 0
+                    columnForRecursiveCall = columnBack - 1
+                    break
 
     return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
 
