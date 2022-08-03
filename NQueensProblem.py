@@ -12,20 +12,30 @@ def checkBounds(x, y, n):
 def printChessBoard(chessBoard, n):
     for i in range(n):
         for j in range(n):
-            print(chessBoard[i][j])
-        print()
+            if chessBoard[i][j] == '':
+                print("\"\"", end=" ")
+            print(chessBoard[i][j], end=" ")
+        print("\n")
 
 
 """ This function , using forward checking, checks the attempt you're trying to perform; 
     the function will be used when the queens have been placed from
-    0 to N-1 columns, because in this way we can only check the left
+    0 to N-1 columns, because in this way we can only check the right
     side for attacking attempts """
 
 
-# TODO Non fa scendere la regina nella prima colonna, ed entra in un loop infinto
 def checkForwardAttempt(row, column, chessBoard, n):
     result = True
-    
+
+    if column == n - 1:
+        queenInLastColumn = False
+        for i in range(n):
+            if chessBoard[i][column] == 'Q':
+                queenInLastColumn = True
+        if queenInLastColumn:
+            printChessBoard(chessBoard, n)
+            exit(0)
+
     # Variables used to remember the row and column to which we have to backtrack 
     # in case we find an "illegal" column with no available cells
     backupRowForBacktracking = row
@@ -35,13 +45,13 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
-        if chessBoard[row][i] == '':  # TODO errore "list index out of range"
+        if chessBoard[row][i] == '':
             chessBoard[row][i] = placeholder
 
     # Mark the right-upper diagonal as unavailable
     for index in range(1, n):
-        index_row = row - index
-        index_col = column + index
+        index_row = row - index  # The lines decrease
+        index_col = column + index  # The columns increase
         if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
             # We use x lower case because it is only temporary
             chessBoard[index_row][index_col] = placeholder
@@ -86,9 +96,10 @@ def checkForwardAttempt(row, column, chessBoard, n):
     indexScanned = 0
     # for i in range(1, len(numOfFreeCells)):
 
-    if bool(numOfFreeCells):
-        return True
+    # if bool(numOfFreeCells):
+    #     return True
 
+    # Iterate on the columns in order to find wich one has the minimum number of free cells
     for i in numOfFreeCells.keys():
         freeCellsForColumnI = numOfFreeCells[i]
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
@@ -264,10 +275,6 @@ def findSolutionWithBacktrackingFC(chessBoard, column, n):
         if checkForwardAttempt(i, column, chessBoard, n):
             # Queen is positioned
             chessBoard[i][column] = 1
-
-        """if checkAttemptWithAC3(chessBoard, i, column, n):
-            # Queen is positioned
-            chessBoard[i][column] = 1"""
 
         # Recursive invocation for the remaining queens
         if findSolutionWithBacktrackingFC(chessBoard, column + 1, n):

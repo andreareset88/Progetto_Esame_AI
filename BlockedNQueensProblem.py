@@ -188,7 +188,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
     placed queen and put it in the next available row"""
 
 
-def checkAttemptWithAC3(chessBoard, row, column, n):
+def checkAttemptWithMAC(chessBoard, row, column, n):
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
     # 3 positions)
@@ -228,7 +228,7 @@ def checkAttemptWithAC3(chessBoard, row, column, n):
                 rowForRecursiveCall = indexToInsertQueen
                 columnForRecursiveCall = columnBack
 
-    return checkAttemptWithAC3(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
+    return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
 
 
 def findSolutionWithBacktrackingFC(chessBoard, column, n):
@@ -266,7 +266,7 @@ def findSolutionWithBacktrackingMAC(chessBoard, column, n):
     # Further checks to evaluate if the queen can be positioned
     # in other remaining possibilities
     for i in range(n):
-        if checkAttemptWithAC3(chessBoard, i, column, n):
+        if checkAttemptWithMAC(chessBoard, i, column, n):
             # Queen is positioned
             chessBoard[i][column] = 1
             # Recursive invocation for the remaining queens
