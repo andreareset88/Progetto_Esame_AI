@@ -1,5 +1,7 @@
 from timeit import default_timer as timer
 from matplotlib import pyplot as plt
+import time
+import numpy as np
 
 N = 4
 
@@ -36,14 +38,14 @@ def checkForwardAttempt(row, column, chessBoard, n):
                 queenInLastColumn = True
         if queenInLastColumn:
             printChessBoard(chessBoard, n)
-            exit(0)
+            return chessBoard  # exit(0)
 
     # Variables used to remember the row and column to which we have to backtrack 
     # in case we find an "illegal" column with no available cells
     backupRowForBacktracking = row
     backupColumnForBacktracking = column
 
-    placeholder = str(row)+str(column)
+    placeholder = str(row) + str(column)
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
@@ -142,14 +144,13 @@ def checkForwardAttempt(row, column, chessBoard, n):
                             rowForQueenFound = k
                             break
 
-
                     # Remove 'Q'
                     chessBoard[rowForQueenFound][backupColumnForBacktracking] = ''
 
                     # Rimuovi i vincoli associati ad una regina cancellata
                     for a in range(n):
                         for b in range(n):
-                            if chessBoard[a][b] == str(rowForQueenFound)+str(backupColumnForBacktracking):
+                            if chessBoard[a][b] == str(rowForQueenFound) + str(backupColumnForBacktracking):
                                 chessBoard[a][b] = ''
 
                     rowForQueenFound += 1
@@ -161,10 +162,9 @@ def checkForwardAttempt(row, column, chessBoard, n):
                                 chessBoard[row][backupColumnForBacktracking] = 'Q'
                                 toContinue = False
                                 break
-                            elif row == n - 1 and chessBoard[row][backupColumnForBacktracking] != '' and chessBoard[row][backupColumnForBacktracking] != 'Q':
+                            elif row == n - 1 and chessBoard[row][backupColumnForBacktracking] != '' and \
+                                    chessBoard[row][backupColumnForBacktracking] != 'Q':
                                 backupColumnForBacktracking -= 1
-
-
 
                 # rowAfterBacktracking = backupRowForBacktracking + 1
                 # # Check the previous column in order to reach the position of the queen
@@ -224,6 +224,18 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
 
 def checkAttemptWithMAC(chessBoard, row, column, n):
+
+    # When we are at the last column, we check that each previous column has a queen positioned, so
+    # the algorithm is finished and the program exits printing the chess board
+    if column == n - 1:
+        queenInLastColumn = False
+        for i in range(n):
+            if chessBoard[i][column] == 'Q':
+                queenInLastColumn = True
+        if queenInLastColumn:
+            printChessBoard(chessBoard, n)
+            return chessBoard  # exit(0)
+
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
     # 3 positions)
@@ -233,29 +245,44 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
 
     placeholder = str(row) + str(column)
 
+    # Keep trace of the number of constraints in the columnToScan at this phase
+    # with this counter
+    numberOfConstraints = 0
+
     # Scanning the right-up, right and right-down cell
     for index in range(row - 1, row + 2):
         if checkBounds(index, columnToScan, n):
             chessBoard[index][columnToScan] = placeholder
-        current_row = index
+            numberOfConstraints += 1
+            current_row = index
 
-    # next_row is the row of the right - adjacent column in which to position the queen
+    # next_row is the row from which try to position the queen
+    # If there isn't any cell in position below the last constraint, the row to scan for insert
+    # queen is the first one
     next_row = current_row + 1
+    if next_row > n - 1:
+        next_row = 0
 
     # Scan the right - adjacent column from next_row to the last row to find if it's possible
     # to fill in a queen
-    isPlaceable = False
-    for i in range(n):
-        if chessBoard[i][columnToScan] == '':  # and i != columnToScan
+    isPlaceable = True
+    continueIteration = True
+    cellOnWhichIterate = n - numberOfConstraints
+    while next_row < n and cellOnWhichIterate > 0 and continueIteration:
+        if chessBoard[next_row][columnToScan] == '':  # and i != columnToScan
             # When a cell is free to be inserted a queen, we check if that row already contains a queen
             for j in reversed(range(columnToScan)):
-                if chessBoard[i][j] == '':
-                    isPlaceable = True
-                elif chessBoard[i][j] != '' or chessBoard[i][j] == 'Q':
+                if chessBoard[next_row][j] == 'Q':
                     isPlaceable = False
                     break
-
-
+                elif j == 0:
+                    isPlaceable = True
+                    continueIteration = False
+                    break
+        if not isPlaceable:
+            next_row += 1
+            cellOnWhichIterate -= 1
+                    
     rowForRecursiveCall = 0
     columnForRecursiveCall = 0
     if isPlaceable:
@@ -263,30 +290,39 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
         rowForRecursiveCall = next_row
         columnForRecursiveCall = columnToScan
     else:
-        # Scanning all the previous columns in order to check that there isn't
-        # any other queen
-        for index in range(1, n):
-            # Go back 1 column
-            columnBack = columnToScan - 1
-            if chessBoard[index][columnBack] == 'Q':
-                chessBoard[index][columnBack] = ''
+        # Go back 1 column
+        columnBack = columnToScan - 1
 
-                # Rimuovi i vincoli associati ad una regina cancellata
-                for a in range(n):
-                    for b in range(n):
-                        if chessBoard[a][b] == str(index) + str(columnBack):
-                            chessBoard[a][b] = ''
+        while columnBack > -1:
+            # Scanning all the previous columns in order to check that there isn't
+            # any other queen, if present erase it
+            indexRowToInsertQueen = 0
+            eraseConstraints = False
+            for indexRowToInsertQueen in range(n):
+                if chessBoard[indexRowToInsertQueen][columnBack] == 'Q':
+                    chessBoard[indexRowToInsertQueen][columnBack] = ''
+                    eraseConstraints = True
 
-                indexToInsertQueen = index + 1
+                if eraseConstraints:
+                    # Remove the constraints related to a deleted queen
+                    for a in range(n):
+                        for b in range(n):
+                            if chessBoard[a][b] == str(indexRowToInsertQueen) + str(columnBack):
+                                chessBoard[a][b] = ''
 
-                if checkBounds(indexToInsertQueen, columnBack, n):
-                    chessBoard[indexToInsertQueen][columnBack] = 'Q'
-                    rowForRecursiveCall = indexToInsertQueen
+                # indexRowToInsertQueen += 1
+
+                if checkBounds(indexRowToInsertQueen, columnBack, n) and chessBoard[indexRowToInsertQueen][columnBack] == '':
+                    chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
+                    rowForRecursiveCall = indexRowToInsertQueen
                     columnForRecursiveCall = columnBack
-                else:
+                elif columnBack == n - 1:
                     rowForRecursiveCall = 0
                     columnForRecursiveCall = columnBack - 1
                     break
+
+            columnBack -= 1
+
 
     return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
 
@@ -335,6 +371,9 @@ def findSolutionWithBacktrackingMAC(chessBoard, column, n):
 
 
 def main():
+
+    # First of all we use a 4x4 chess board to show that the problem is correctly solved
+
     chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     version = int(input("Press 1 for FC, 2 for MAC:"))
     if version == 1:
@@ -345,42 +384,48 @@ def main():
         print("Error, it doesn't exist a solution")
     printChessBoard(chessBoard, N)
 
-    """for n in range(2, 21):  # Dimensione scacchiera crescente da 2x2 a 20x20
-        chessBoard = []
-        sumFC = []
-        sumMAC = []
-
-        # for k in range(50):  # Eseguo 50 volte per ogni dimensione
-            for i in range(n+1):
-                for j in range(n+1):
-                    chessBoard[i][j] = 0
-
-            chessBoard[0][0] = 'Q'
-            start = timer()
-            result = findSolutionWithBacktrackingFC(chessBoard, 0, n)
-            end = timer()
-            sumFC.append(end - start)
-            if not result:
-                print('It does not exist a solution with FC')
-            # printChessBoard(chessBoard, n)
-        
-        chessBoard = []
-        # for k in range(50):
-            for i in range(n):
-                for j in range(n):
-                    chessBoard[i][j] = 0
-
-            chessBoard[0][0] = 'Q'
-            start = timer()
-            result = findSolutionWithBacktrackingMAC(chessBoard, 0, n)
-            end = timer()
-            sumMAC.append(end - start)
-            if not result:
-                print('It does not exist a solution with MAC')
-            # printChessBoard(chessBoard, n)
-        plt.plot(n, sumFC, marker="o", color="red")
-        plt.plot(n, sumMAC, marker="o", color="green")
-    plt.show()"""
+    # time.sleep(10)  # Wait 10 seconds before the main part of tests
+    #
+    #
+    # values = np.arange(2, 21)
+    # sumFC = []
+    # sumMAC = []
+    # for n in values:  # Chess board's dimensions from 2x2 to 20x20
+    #     chessBoard = []
+    #     sumFC = []
+    #     sumMAC = []
+    #
+    #     for k in range(50):  # Execute 50 times for every dimension
+    #         for i in range(n + 1):
+    #             for j in range(n + 1):
+    #                 chessBoard[i][j] = ''  # Initialize the chess board
+    #
+    #         chessBoard[0][0] = 'Q'
+    #         start = timer()
+    #         result = findSolutionWithBacktrackingFC(chessBoard, 0, n)
+    #         end = timer()
+    #         sumFC.append(end - start)
+    #         if not result:
+    #             print("It doesn't exist a solution with FC")
+    #
+    #     chessBoard = []
+    #
+    #     for k in range(50):  # Execute 50 times for every dimension
+    #         for i in range(n + 1):
+    #             for j in range(n + 1):
+    #                 chessBoard[i][j] = ''  # Initialize the chess board
+    #
+    #         chessBoard[0][0] = 'Q'
+    #         start = timer()
+    #         result = findSolutionWithBacktrackingMAC(chessBoard, 0, n)
+    #         end = timer()
+    #         sumMAC.append(end - start)
+    #         if not result:
+    #             print("It doesn't exist a solution with MAC")
+    #
+    # plt.plot(values, sumFC, marker="o", color="red")
+    # plt.plot(values, sumMAC, marker="o", color="green")
+    # plt.show()
     return True
 
 
