@@ -3,21 +3,11 @@ from matplotlib import pyplot as plt
 import time
 import numpy as np
 
+from UtilityForAlgorithms import UtilityForAlgorithms
+
 N = 4
 
 
-def checkBounds(x, y, n):
-    return 0 <= x <= n - 1 and 0 <= y <= n - 1
-
-
-# Function that prints the current layout of the chess board
-def printChessBoard(chessBoard, n):
-    for i in range(n):
-        for j in range(n):
-            if chessBoard[i][j] == '':
-                print("\"\"", end=" ")
-            print(chessBoard[i][j], end=" ")
-        print("\n")
 
 
 """ This function , using forward checking, checks the attempt you're trying to perform; 
@@ -37,7 +27,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
             if chessBoard[i][column] == 'Q':
                 queenInLastColumn = True
         if queenInLastColumn:
-            printChessBoard(chessBoard, n)
+            UtilityForAlgorithms.printChessBoard(chessBoard, N)
             return chessBoard  # exit(0)
 
     # Variables used to remember the row and column to which we have to backtrack 
@@ -56,7 +46,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
     for index in range(1, n):
         index_row = row - index  # The lines decrease
         index_col = column + index  # The columns increase
-        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
+        if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
             # We use x lower case because it is only temporary
             chessBoard[index_row][index_col] = placeholder
 
@@ -64,7 +54,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
     for index in range(1, n):
         index_row = row + index
         index_col = column + index
-        if checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
+        if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '':
             # We use x lower case because it is only temporary
             chessBoard[index_row][index_col] = placeholder
 
@@ -189,7 +179,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             if chessBoard[i][column] == 'Q':
                 queenInLastColumn = True
         if queenInLastColumn:
-            printChessBoard(chessBoard, n)
+            UtilityForAlgorithms.printChessBoard(chessBoard, N)
             return chessBoard  # exit(0)
 
     # Iterate on the adjacent right column, in order
@@ -204,9 +194,9 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # with this counter
     numberOfConstraints = 0
 
-    # Scanning the right-up, right and right-down cell
+    # Filling the right-up, right and right-down cell
     for index in range(row - 1, row + 2):
-        if checkBounds(index, columnToScan, n):
+        if UtilityForAlgorithms.checkBounds(index, columnToScan, n):
             chessBoard[index][columnToScan] = placeholder
             numberOfConstraints += 1
             current_row = index
@@ -227,7 +217,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     continueIteration = True
     cellOnWhichIterate = n - numberOfConstraints
     while next_row < n and cellOnWhichIterate > 0 and continueIteration:
-        if chessBoard[next_row][columnToScan] == '':  # and i != columnToScan
+        if chessBoard[next_row][columnToScan] == '':
             # When a cell is free to be inserted a queen, we check if that row already contains a queen
             for j in reversed(range(columnToScan)):
                 if chessBoard[next_row][j] == 'Q':
@@ -277,7 +267,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             indexRowToInsertQueen += 1
 
             # If one cell empty and satisfying the constraints is found, then put the queen
-            if checkBounds(indexRowToInsertQueen, columnBack, n) and chessBoard[indexRowToInsertQueen][columnBack] == '':
+            if UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and chessBoard[indexRowToInsertQueen][columnBack] == '':
                 chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
                 rowForRecursiveCall = indexRowToInsertQueen
                 columnForRecursiveCall = columnBack
@@ -296,7 +286,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
 def findSolutionWithBacktrackingFC(chessBoard, column, n):
     # Returns true if the queens are positioned
     if column >= n:
-        # printChessBoard(chessBoard)
+        # UtilityForAlgorithms.printChessBoard(chessBoard, N)
         return True
 
     # Further checks to evaluate if the queen can be positioned
@@ -318,7 +308,7 @@ def findSolutionWithBacktrackingFC(chessBoard, column, n):
 def findSolutionWithBacktrackingMAC(chessBoard, column, n):
     # Returns true if the queens are positioned
     if column >= n:
-        # printChessBoard(chessBoard)
+        # UtilityForAlgorithms.printChessBoard(chessBoard, N)
         return True
 
     # Further checks to evaluate if the queen can be positioned
@@ -348,7 +338,7 @@ def main():
         result = findSolutionWithBacktrackingMAC(chessBoard, 0, N)
     if not result:
         print("Error, it doesn't exist a solution")
-    printChessBoard(chessBoard, N)
+    UtilityForAlgorithms.printChessBoard(chessBoard, N)
 
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
     #
