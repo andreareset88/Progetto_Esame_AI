@@ -166,50 +166,6 @@ def checkForwardAttempt(row, column, chessBoard, n):
                                     chessBoard[row][backupColumnForBacktracking] != 'Q':
                                 backupColumnForBacktracking -= 1
 
-                # rowAfterBacktracking = backupRowForBacktracking + 1
-                # # Check the previous column in order to reach the position of the queen
-                #
-                # indexTillLastRow = rowAfterBacktracking
-                # countCellsNotAvailableOnBacktrackingColumn = 0
-                # while indexTillLastRow < n:
-                #     if checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] == '':
-                #         chessBoard[indexTillLastRow][backupColumnForBacktracking] = 'Q'
-                #         break
-                #     elif indexTillLastRow == n-1 and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '' and chessBoard[indexTillLastRow][backupColumnForBacktracking] != 'Q':
-                #         backupColumnForBacktracking -= 1
-                #
-                #         for k in range(n):
-                #             if chessBoard[k][backupColumnForBacktracking] == 'Q':
-                #                 rowAfterBacktracking = k
-                #
-                #                 chessBoard[k][backupColumnForBacktracking] = ''
-                #
-                #                 # Rimuovi i vincoli associati ad una regina cancellata
-                #                 for a in range(n):
-                #                     for b in range(n):
-                #                         if chessBoard[a][b] == str(k) + str(backupColumnForBacktracking):
-                #                             chessBoard[a][b] = ''
-                #
-                #     # elif checkBounds(indexTillLastRow, backupColumnForBacktracking, n) and chessBoard[indexTillLastRow][backupColumnForBacktracking] != '':
-                #         # countCellsNotAvailableOnBacktrackingColumn += 1
-                #
-                #     indexTillLastRow += 1
-                #
-                # # If in the current column you can't place any queen, step 1 column back
-                # if countCellsNotAvailableOnBacktrackingColumn == n - backupRowForBacktracking - 1:
-                #     # backupColumnForBacktracking -= 1
-                #     # k è l'indice della riga dove si trova la regina (nella colonna precedente)
-                #     # for k in range(n):
-                #     #     if chessBoard[k][backupColumnForBacktracking] == 'Q':
-                #     #         rowAfterBacktracking = k
-                #     #
-                #     #         chessBoard[k][backupColumnForBacktracking] = ''
-                #     #
-                #     #         # Rimuovi i vincoli associati ad una regina cancellata
-                #     #         for a in range(n):
-                #     #             for b in range(n):
-                #     #                 if chessBoard[a][b] == str(k)+str(backupColumnForBacktracking):
-                #     #                     chessBoard[a][b] = ''
 
                 return checkForwardAttempt(rowForQueenFound, backupColumnForBacktracking, chessBoard, n)
 
@@ -226,7 +182,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
 def checkAttemptWithMAC(chessBoard, row, column, n):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
-    # the algorithm is finished and the program exits printing the chess board
+    # the algorithm is finished and the program prints and return the chess board
     if column == n - 1:
         queenInLastColumn = False
         for i in range(n):
@@ -239,7 +195,6 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
     # 3 positions)
-
     current_row = 0
     columnToScan = column + 1
 
@@ -264,7 +219,10 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
         next_row = 0
 
     # Scan the right - adjacent column from next_row to the last row to find if it's possible
-    # to fill in a queen
+    # to fill in a queen.
+    # The number of cells on which to iterate is the number of total rows - the number of
+    # cells containing the constraint of a positioned queen.
+    # The iteration goes ahead only till a queen can't be positioned
     isPlaceable = True
     continueIteration = True
     cellOnWhichIterate = n - numberOfConstraints
@@ -285,6 +243,10 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
                     
     rowForRecursiveCall = 0
     columnForRecursiveCall = 0
+    # If the column we are scanning contains a cell available to position the queen, then
+    # put it in the cell and call the recursion on the indexes of that cell; otherwise,
+    # we have to do a backtracking one column at a time (also scanning back all the previous columns)
+    # till a column that can contain a queen is found.
     if isPlaceable:
         chessBoard[next_row][columnToScan] = 'Q'
         rowForRecursiveCall = next_row
@@ -293,33 +255,37 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
         # Go back 1 column
         columnBack = columnToScan - 1
 
-        while columnBack > -1:
-            # Scanning all the previous columns in order to check that there isn't
-            # any other queen, if present erase it
+        queenToInsert = True
+
+        while columnBack > -1 and queenToInsert:
             indexRowToInsertQueen = 0
             eraseConstraints = False
-            for indexRowToInsertQueen in range(n):
-                if chessBoard[indexRowToInsertQueen][columnBack] == 'Q':
-                    chessBoard[indexRowToInsertQueen][columnBack] = ''
+            for indexRow in range(n):
+                if chessBoard[indexRow][columnBack] == 'Q':
+                    chessBoard[indexRow][columnBack] = ''
                     eraseConstraints = True
+                    indexRowToInsertQueen = indexRow
 
+                # Remove the constraints related to a deleted queen
                 if eraseConstraints:
-                    # Remove the constraints related to a deleted queen
                     for a in range(n):
                         for b in range(n):
-                            if chessBoard[a][b] == str(indexRowToInsertQueen) + str(columnBack):
+                            if chessBoard[a][b] == str(indexRow) + str(columnBack):
                                 chessBoard[a][b] = ''
 
-                # indexRowToInsertQueen += 1
 
-                if checkBounds(indexRowToInsertQueen, columnBack, n) and chessBoard[indexRowToInsertQueen][columnBack] == '':
-                    chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
-                    rowForRecursiveCall = indexRowToInsertQueen
-                    columnForRecursiveCall = columnBack
-                elif columnBack == n - 1:
-                    rowForRecursiveCall = 0
-                    columnForRecursiveCall = columnBack - 1
-                    break
+            indexRowToInsertQueen += 1
+
+            # If one cell empty and satisfying the constraints is found, then put the queen
+            if checkBounds(indexRowToInsertQueen, columnBack, n) and chessBoard[indexRowToInsertQueen][columnBack] == '':
+                chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
+                rowForRecursiveCall = indexRowToInsertQueen
+                columnForRecursiveCall = columnBack
+                queenToInsert = False
+            # elif columnBack == n - 1:
+            #     rowForRecursiveCall = 0
+            #     columnForRecursiveCall = columnBack - 1
+            #     break
 
             columnBack -= 1
 
