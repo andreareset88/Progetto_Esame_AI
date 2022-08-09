@@ -28,3 +28,14 @@ class UtilityForAlgorithms:
             result = False
 
         return result
+
+    @staticmethod
+    def allQueensPositioned(chessBoard, column, n):
+        if column == n - 1:
+            queenInLastColumn = False
+            for i in range(n):
+                if chessBoard[i][column] == 'Q':
+                    queenInLastColumn = True
+            if queenInLastColumn:
+                UtilityForAlgorithms.printChessBoard(chessBoard, n)
+                return chessBoard  # exit(0)

@@ -21,14 +21,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program exits printing the chess board
-    if column == n - 1:
-        queenInLastColumn = False
-        for i in range(n):
-            if chessBoard[i][column] == 'Q':
-                queenInLastColumn = True
-        if queenInLastColumn:
-            UtilityForAlgorithms.printChessBoard(chessBoard, N)
-            return chessBoard  # exit(0)
+    UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n)
 
     # Variables used to remember the row and column to which we have to backtrack 
     # in case we find an "illegal" column with no available cells
@@ -173,14 +166,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program prints and return the chess board
-    if column == n - 1:
-        queenInLastColumn = False
-        for i in range(n):
-            if chessBoard[i][column] == 'Q':
-                queenInLastColumn = True
-        if queenInLastColumn:
-            UtilityForAlgorithms.printChessBoard(chessBoard, N)
-            return chessBoard  # exit(0)
+    UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n)
 
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
