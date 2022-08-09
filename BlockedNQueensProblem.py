@@ -195,7 +195,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     next_row = current_row + 1
 
     # We need to iterate on the column, because we can face a not available cell
-    while not UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, next_row, columnToScan):
+    while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, next_row, columnToScan):
         next_row += 1
 
     if next_row > n - 1:
@@ -216,9 +216,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
                                                                                                      columnToScan):
             # When a cell is free to be inserted a queen, we check if that row already contains a queen
             for j in reversed(range(columnToScan)):
-                if chessBoard[next_row][j] == 'Q' or (
-                        j == 0 and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard,
-                                                                                                    next_row, j)):
+                if chessBoard[next_row][j] == 'Q':
                     isPlaceable = False
                     break
                 elif j == 0:
@@ -330,7 +328,7 @@ def main():
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
     # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    chessBoard = [['F', '', '', ''], ['Q', 'F', '', ''], ['', '', '', ''], ['', '', 'F', '']]
+    chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
     version = int(input("Press 1 for FC, 2 for MAC:"))
     if version == 1:
         result = findSolutionWithBacktrackingFC(chessBoard, 0, N)

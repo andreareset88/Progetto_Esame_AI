@@ -36,6 +36,7 @@ class UtilityForAlgorithms:
             for i in range(n):
                 if chessBoard[i][column] == 'Q':
                     queenInLastColumn = True
+                    break
             if queenInLastColumn:
                 UtilityForAlgorithms.printChessBoard(chessBoard, n)
                 return chessBoard  # exit(0)
