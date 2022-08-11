@@ -13,7 +13,8 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program exits printing the chess board
-    UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n)
+    if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
+        return chessBoard
 
     # Variables used to remember the row and column to which we have to backtrack
     # in case we find an "illegal" column with no available cells
@@ -24,8 +25,8 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
-        if chessBoard[row][i] == '' and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard,
-                                                                                                         row, i):
+        if UtilityForAlgorithms.checkBounds(row, i, n) and chessBoard[row][i] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
+                                                                         row, i):
             chessBoard[row][i] = placeholder
 
     # Mark the right-upper diagonal as unavailable
@@ -33,7 +34,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
         index_row = row - index  # The lines decrease
         index_col = column + index  # The columns increase
         if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '' \
-                and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, index_row, index_col):
+                and UtilityForAlgorithms.isAFreeCell(chessBoard, index_row, index_col):
             # We use x lower case because it is only temporary
             chessBoard[index_row][index_col] = placeholder
 
@@ -42,7 +43,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
         index_row = row + index
         index_col = column + index
         if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '' \
-                and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, index_row, index_col):
+                and UtilityForAlgorithms.isAFreeCell(chessBoard, index_row, index_col):
             # We use x lower case because it is only temporary
             chessBoard[index_row][index_col] = placeholder
 
@@ -77,10 +78,6 @@ def checkForwardAttempt(row, column, chessBoard, n):
     numOfMinCellsAvailable = n
     freeCellsForColumnI = 0
     indexScanned = 0
-    # for i in range(1, len(numOfFreeCells)):
-
-    # if bool(numOfFreeCells):
-    #     return True
 
     # Iterate on the columns in order to find which one has the minimum number of free cells
     for i in numOfFreeCells.keys():
@@ -95,7 +92,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
         if numOfMinCellsAvailable > 0 and not conditionForBacktracking:
             if chessBoard[i][
-                columnToInsertValue] == '' and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(
+                columnToInsertValue] == '' and UtilityForAlgorithms.isAFreeCell(
                 chessBoard, i, columnToInsertValue):
                 chessBoard[i][columnToInsertValue] = 'Q'
 
@@ -105,15 +102,9 @@ def checkForwardAttempt(row, column, chessBoard, n):
                 freeCellsForColumnI = 0
                 numOfMinCellsAvailable = n
 
-                # Erase the temporary placeholder 'x'
-                # for k in range(n):
-                #     for m in range(n):
-                #         if chessBoard[k][m] == 'x':
-                #             chessBoard[k][m] = 'X'
-
                 return checkForwardAttempt(i, columnToInsertValue, chessBoard, n)
         else:
-            if conditionForBacktracking:  # and chessBoard[i][columnToInsertValue] != 'X' and chessBoard[i][columnToInsertValue] != 'Q':
+            if conditionForBacktracking:
 
                 toContinue = True
                 rowForQueenFound = 0
@@ -141,6 +132,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
                         for row in range(rowForQueenFound, n):
                             if chessBoard[row][backupColumnForBacktracking] == '':
                                 chessBoard[row][backupColumnForBacktracking] = 'Q'
+                                rowForQueenFound = row
                                 toContinue = False
                                 break
                             elif row == n - 1 and chessBoard[row][backupColumnForBacktracking] != '' and \
@@ -162,7 +154,8 @@ def checkForwardAttempt(row, column, chessBoard, n):
 def checkAttemptWithMAC(chessBoard, row, column, n):
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program prints and return the chess board
-    UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n)
+    if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
+        return chessBoard
 
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
@@ -179,13 +172,13 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # Filling the right-up, right and right-down cell, if the cell isn't forbidden
     for index in range(row - 1, row + 2):
         if UtilityForAlgorithms.checkBounds(index, columnToScan,
-                                            n) and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(
+                                            n) and UtilityForAlgorithms.isAFreeCell(
             chessBoard, index, columnToScan):
             chessBoard[index][columnToScan] = placeholder
             numberOfConstraints += 1
             current_row = index
         elif UtilityForAlgorithms.checkBounds(index, columnToScan,
-                                            n) and not UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(
+                                            n) and not UtilityForAlgorithms.isAFreeCell(
             chessBoard, index, columnToScan):
             numberOfConstraints += 1
 
@@ -195,7 +188,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     next_row = current_row + 1
 
     # We need to iterate on the column, because we can face a not available cell
-    while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, next_row, columnToScan):
+    while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not UtilityForAlgorithms.isAFreeCell(chessBoard, next_row, columnToScan):
         next_row += 1
 
     if next_row > n - 1:
@@ -211,9 +204,9 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     cellOnWhichIterate = n - numberOfConstraints
     while next_row < n and cellOnWhichIterate > 0 and continueIteration:
         if chessBoard[next_row][
-            columnToScan] == '' and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard,
-                                                                                                     next_row,
-                                                                                                     columnToScan):
+            columnToScan] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
+                                                                     next_row,
+                                                                     columnToScan):
             # When a cell is free to be inserted a queen, we check if that row already contains a queen
             for j in reversed(range(columnToScan)):
                 if chessBoard[next_row][j] == 'Q':
@@ -262,15 +255,15 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             # When a queen is to be placed in the column of backtracking, iterate till a not blocked cell is found:
             # in a column you can have 2 or more adjacent not available cells on the same column
             indexRowToInsertQueen += 1
-            while not UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard,
-                                                                                       indexRowToInsertQueen,
-                                                                                       columnBack):
+            while not UtilityForAlgorithms.isAFreeCell(chessBoard,
+                                                       indexRowToInsertQueen,
+                                                       columnBack):
                 indexRowToInsertQueen += 1
 
             # If one cell empty and satisfying the constraints is found, then put the queen
             if UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and \
                     chessBoard[indexRowToInsertQueen][
-                        columnBack] == '' and UtilityForAlgorithms.checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, indexRowToInsertQueen, columnBack):
+                        columnBack] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard, indexRowToInsertQueen, columnBack):
                 chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
                 rowForRecursiveCall = indexRowToInsertQueen
                 columnForRecursiveCall = columnBack

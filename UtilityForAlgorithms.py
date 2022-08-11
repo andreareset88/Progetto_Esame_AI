@@ -22,7 +22,7 @@ class UtilityForAlgorithms:
 
     # Checks if the cell is available or not allowed
     @staticmethod
-    def checkForCurrentCellFeasibleInBlockedNQueens(chessBoard, row, column):
+    def isAFreeCell(chessBoard, row, column):
         result = True
         if chessBoard[row][column] == 'F':
             result = False
@@ -31,12 +31,15 @@ class UtilityForAlgorithms:
 
     @staticmethod
     def allQueensPositioned(chessBoard, column, n):
+        result = False
         if column == n - 1:
             queenInLastColumn = False
             for i in range(n):
                 if chessBoard[i][column] == 'Q':
                     queenInLastColumn = True
+                    result = True
                     break
             if queenInLastColumn:
                 UtilityForAlgorithms.printChessBoard(chessBoard, n)
-                return chessBoard  # exit(0)
+
+        return result
