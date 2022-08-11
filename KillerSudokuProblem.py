@@ -2,6 +2,7 @@ import json
 import sys
 
 
+# Prints the sudoku grid
 def printSudokuGrid(sudokuGrid):
     for i in range(0, 9):
         for j in range(0, 9):
@@ -9,56 +10,76 @@ def printSudokuGrid(sudokuGrid):
         print("\n")
 
 
+# Defines the cages starting from json format
 def defineCagesFromJson(json):
     for cage in json:
         cage['cells'] = [tuple(cell) for cell in cage['cells']]
     return json
 
 
+# Initialize the sudoku grid with all 0
 def initializeSudokuGrid():
     sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
     return sudokuGrid
 
 
-# Checks that each cage doesn't contain duplicated values
-def checkCagesNotContainingDuplicateValues(cages):
+# Extract all the cells contained in all the cages defined in JSON file and checks that each cage doesn't contain duplicated values
+def checkCagesNotContainDuplicatedCells(cages):
     cells = [cell for cage in cages for cell in cage['cells']]
     if len(set(cells)) != len(cells):
         raise ValueError('Not valid json, please remove double coordinates before moving forward')
 
 
 # Add the totalValue values to the 0 grid
-def addTotalValueToEachCage(cages):
-    sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
+def assignTotalValueToCellsOfACage(sudokuGrid, cages):
     for cage in cages:
         for i, j in cage['cells']:
             sudokuGrid[i][j] = cage['totalValue']
 
-    printSudokuGrid(sudokuGrid)
+    return sudokuGrid
 
 
 # Checks that there aren't duplicated values in each column
-def checkDuplicatedValuesInColumns(sudokuGrid, value, j):
+def containsDuplicatedValuesInColumns(sudokuGrid, value, j):
+    numOfOccurences = 0
+    result = False
     for i in range(0, 9):
         if sudokuGrid[i][j] == value:
-            return False
+            numOfOccurences += 1
+        if numOfOccurences == 2:
+            result = True
+            break
+    return result
 
 
 # Checks that there aren't duplicated values in each row
-def checkDuplicatedValuesInRows(sudokuGrid, value, i):
+def containsDuplicatedValuesInRows(sudokuGrid, value, i):
+    numOfOccurences = 0
+    result = False
     for j in range(0, 9):
         if sudokuGrid[i][j] == value:
-            return False
+            numOfOccurences += 1
+        if numOfOccurences == 2:
+            result = True
+            break
 
+    return result
 
 # Checks that there aren't duplicated values in each sub-square 3x3
-def checkDuplicatedValuesInSquares(sudokuGrid, value, i, j):
+def containsDuplicatedValuesInSquares(sudokuGrid, value, i, j):
     i_1 = (i // 3) * 3
     j_1 = (j // 3) * 3
+    numOfOccurences = 0
+    result = False
     for row in range(0, 3):
         for column in range(0, 3):
             if sudokuGrid[i_1 + row][j_1 + column] == value:
-                return False
+                numOfOccurences += 1
+            if numOfOccurences == 2:
+                result = True
+                break
+
+    return result
 
 
 # Checks that all the cells in each cage doesn't contain 0 elements
@@ -67,9 +88,19 @@ def checkBoxesNotContainingZero(cageElements):
 
 
 def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
-    checkDuplicatedValuesInSquares(sudokuGrid, value, i, j)
-    checkDuplicatedValuesInRows(sudokuGrid, value, i)
-    checkDuplicatedValuesInColumns(sudokuGrid, value, j)
+    duplicatedValuesInSquares = containsDuplicatedValuesInSquares(sudokuGrid, value, i, j)
+    duplicatedValuesInRows = containsDuplicatedValuesInRows(sudokuGrid, value, i)
+    duplicatedValuesInColumns = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
+
+    if duplicatedValuesInSquares:
+        raise RuntimeError("Sorry, you have a duplicated value in the square")
+
+    if duplicatedValuesInRows:
+        raise RuntimeError("Sorry, you have a duplicated value in the row")
+
+    if duplicatedValuesInColumns:
+        raise RuntimeError("Sorry, you have a duplicated value in the column")
+
 
     currentCage = setOfCells[(i, j)]
 
@@ -142,9 +173,9 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
     # to one of these cells, otherwise re-iterate on those cells
     for row, column in adjacentCellsWithoutValue:
 
-        isDuplicatedValuesInSquare = checkDuplicatedValuesInSquares(sudokuGrid, value, i, j)
-        isDuplicatedValuesInRow = checkDuplicatedValuesInRows(sudokuGrid, value, i)
-        isDuplicatedValuesInColumn = checkDuplicatedValuesInColumns(sudokuGrid, value, j)
+        isDuplicatedValuesInSquare = containsDuplicatedValuesInSquares(sudokuGrid, value, i, j)
+        isDuplicatedValuesInRow = containsDuplicatedValuesInRows(sudokuGrid, value, i)
+        isDuplicatedValuesInColumn = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
 
         if isDuplicatedValuesInSquare and isDuplicatedValuesInRow and isDuplicatedValuesInColumn:
             sudokuGrid[row][column] = value
@@ -152,15 +183,14 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
             inferenceOnPossibleAssignmentsWithMAC(row, column, value, sudokuGrid, setOfCells)
 
 
-def callBacktrack(setOfCells):
-    global sudokuGrid
+def callBacktrack(sudokuGrid, setOfCells):
     for i in range(9):
         for j in range(9):
             if sudokuGrid[i][j] == 0:
                 for value in range(1, 10):
                     if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
                         sudokuGrid[i][j] = value
-                        callBacktrack(setOfCells)
+                        callBacktrack(sudokuGrid, setOfCells)
                         sudokuGrid[i][j] = 0
                 return
         printSudokuGrid(sudokuGrid)
@@ -168,19 +198,26 @@ def callBacktrack(setOfCells):
 
 # def sudokuSolver():
 
-# Second argument from command line
-dataSourceFile = sys.argv[1]
-cages = json.load(open(dataSourceFile))
+def main():
+    # From command line specify the .json file
+    dataSourceFile = 'CagesDataSource.json'  # sys.argv[1]
+    # Opening JSON file
+    dataSourceJson = open(dataSourceFile)
+    # It returns JSON object as a dictionary
+    cagesAsDictFromJson = json.load(dataSourceJson)
 
-cages = defineCagesFromJson(cages)
+    cages = defineCagesFromJson(cagesAsDictFromJson)
 
-checkCagesNotContainingDuplicateValues(cages)
+    checkCagesNotContainDuplicatedCells(cages)
 
-addTotalValueToEachCage(cages)
+    sudokuGrid = initializeSudokuGrid()
 
-sudokuGrid = initializeSudokuGrid()
+    assignTotalValueToCellsOfACage(sudokuGrid, cages)
 
-# All the cells of all cages
-setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
+    # All the cells of all cages
+    setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
-callBacktrack()
+    callBacktrack(sudokuGrid, setOfCells)
+
+if __name__ == '__main__':
+    main()
