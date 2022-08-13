@@ -41,44 +41,31 @@ def assignTotalValueToCellsOfACage(sudokuGrid, cages):
 
 # Checks that there aren't duplicated values in each column
 def containsDuplicatedValuesInColumns(sudokuGrid, value, j):
-    numOfOccurences = 0
     result = False
     for i in range(0, 9):
         if sudokuGrid[i][j] == value:
-            numOfOccurences += 1
-        if numOfOccurences == 2:
             result = True
-            break
     return result
 
 
 # Checks that there aren't duplicated values in each row
 def containsDuplicatedValuesInRows(sudokuGrid, value, i):
-    numOfOccurences = 0
     result = False
     for j in range(0, 9):
         if sudokuGrid[i][j] == value:
-            numOfOccurences += 1
-        if numOfOccurences == 2:
             result = True
-            break
-
     return result
+
 
 # Checks that there aren't duplicated values in each sub-square 3x3
 def containsDuplicatedValuesInSquares(sudokuGrid, value, i, j):
     i_1 = (i // 3) * 3
     j_1 = (j // 3) * 3
-    numOfOccurences = 0
     result = False
     for row in range(0, 3):
         for column in range(0, 3):
             if sudokuGrid[i_1 + row][j_1 + column] == value:
-                numOfOccurences += 1
-            if numOfOccurences == 2:
                 result = True
-                break
-
     return result
 
 
@@ -100,7 +87,6 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
 
     if duplicatedValuesInColumns:
         raise RuntimeError("Sorry, you have a duplicated value in the column")
-
 
     currentCage = setOfCells[(i, j)]
 
@@ -152,11 +138,14 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
 
         # Scanning the elements on the same cage, checking the above and below row,
         # and the adjacent column
-        if sudokuGrid[row][column] != 0 and row == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages + 1:
+        if sudokuGrid[row][
+            column] != 0 and row == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages + 1:
             cageAdjacentCells.append([row, column])
-        if sudokuGrid[row][column] != 0 and row - 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
+        if sudokuGrid[row][
+            column] != 0 and row - 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
             cageAdjacentCells.append([row, column])
-        if sudokuGrid[row][column] != 0 and row + 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
+        if sudokuGrid[row][
+            column] != 0 and row + 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
             cageAdjacentCells.append([row, column])
 
     # Before insert the value, check that it satisfies the constraints
@@ -218,6 +207,7 @@ def main():
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
     callBacktrack(sudokuGrid, setOfCells)
+
 
 if __name__ == '__main__':
     main()
