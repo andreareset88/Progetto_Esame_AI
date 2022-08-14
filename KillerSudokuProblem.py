@@ -12,12 +12,6 @@ def defineCagesFromJson(json):
     return json
 
 
-# Initialize the sudoku grid with all 0
-def initializeSudokuGrid():
-    sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
-    return sudokuGrid
-
-
 # Extract all the cells contained in all the cages defined in JSON file and
 # checks that each cage doesn't contain duplicated values
 def checkCagesNotContainDuplicatedCells(cages):
@@ -32,6 +26,7 @@ def assignTotalValueToCellsOfACage(sudokuGrid, cages):
         for i, j in cage['cells']:
             sudokuGrid[i][j] = cage['totalValue']
 
+    UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
     return sudokuGrid
 
 
@@ -77,16 +72,13 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     duplicatedValuesInColumns = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
 
     if duplicatedValuesInSquares:
-        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
-        raise ValueError("Sorry, you have a duplicated value in the square")
+        return False
 
     if duplicatedValuesInRows:
-        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
-        raise ValueError("Sorry, you have a duplicated value in the row")
+        return False
 
     if duplicatedValuesInColumns:
-        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
-        raise ValueError("Sorry, you have a duplicated value in the column")
+        return False
 
     currentCage = setOfCells[(i, j)]
 
@@ -207,12 +199,17 @@ def main():
     checkCagesNotContainDuplicatedCells(cages)
 
     # Initialize grid with all 0
-    sudokuGrid = initializeSudokuGrid()
+    sudokuGrid = UtilityForAlgorithms.initializeSudokuGrid()
 
     # Assigns the totalValue to each cell of a cage
     assignTotalValueToCellsOfACage(sudokuGrid, cages)
 
-    # All the cells of all cages
+    sudokuGrid = UtilityForAlgorithms.initializeSudokuGrid()
+
+    # setOfCells is a Dictionary of n x n elements (81):
+    # - key = each cell
+    # - value = totalValue of the cage to which the cell belongs and
+    # the list of all the cells of that cage
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
     callBacktrackFC(sudokuGrid, setOfCells)

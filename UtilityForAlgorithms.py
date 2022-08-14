@@ -52,3 +52,8 @@ class UtilityForAlgorithms:
                 print(sudokuGrid[i][j], end="|")
             print("\n")
 
+    # Initialize the sudoku grid with all 0
+    @staticmethod
+    def initializeSudokuGrid():
+        sudokuGrid = [[0 for i in range(0, 9)] for i in range(0, 9)]
+        return sudokuGrid
