@@ -43,3 +43,12 @@ class UtilityForAlgorithms:
                 UtilityForAlgorithms.printChessBoard(chessBoard, n)
 
         return result
+
+
+    @staticmethod
+    def printSudokuGrid(sudokuGrid):
+        for i in range(9):
+            for j in range(9):
+                print(sudokuGrid[i][j], end="|")
+            print("\n")
+

@@ -2,15 +2,10 @@ import json
 import sys
 
 
-# Prints the sudoku grid
-def printSudokuGrid(sudokuGrid):
-    for i in range(0, 9):
-        for j in range(0, 9):
-            print(sudokuGrid[i][j])
-        print("\n")
+# Defines the cages as tuples starting from json format
+from UtilityForAlgorithms import UtilityForAlgorithms
 
 
-# Defines the cages starting from json format
 def defineCagesFromJson(json):
     for cage in json:
         cage['cells'] = [tuple(cell) for cell in cage['cells']]
@@ -23,7 +18,8 @@ def initializeSudokuGrid():
     return sudokuGrid
 
 
-# Extract all the cells contained in all the cages defined in JSON file and checks that each cage doesn't contain duplicated values
+# Extract all the cells contained in all the cages defined in JSON file and
+# checks that each cage doesn't contain duplicated values
 def checkCagesNotContainDuplicatedCells(cages):
     cells = [cell for cage in cages for cell in cage['cells']]
     if len(set(cells)) != len(cells):
@@ -59,6 +55,7 @@ def containsDuplicatedValuesInRows(sudokuGrid, value, i):
 
 # Checks that there aren't duplicated values in each sub-square 3x3
 def containsDuplicatedValuesInSquares(sudokuGrid, value, i, j):
+    # Floor division by 3
     i_1 = (i // 3) * 3
     j_1 = (j // 3) * 3
     result = False
@@ -69,9 +66,9 @@ def containsDuplicatedValuesInSquares(sudokuGrid, value, i, j):
     return result
 
 
-# Checks that all the cells in each cage doesn't contain 0 elements
-def checkBoxesNotContainingZero(cageElements):
-    return 0 not in cageElements
+# Checks that all the cells in each cage don't contain 0 elements
+def checkBoxesNotContainingZero(cage_elements):
+    return 0 not in cage_elements
 
 
 def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
@@ -80,13 +77,16 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     duplicatedValuesInColumns = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
 
     if duplicatedValuesInSquares:
-        raise RuntimeError("Sorry, you have a duplicated value in the square")
+        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
+        raise ValueError("Sorry, you have a duplicated value in the square")
 
     if duplicatedValuesInRows:
-        raise RuntimeError("Sorry, you have a duplicated value in the row")
+        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
+        raise ValueError("Sorry, you have a duplicated value in the row")
 
     if duplicatedValuesInColumns:
-        raise RuntimeError("Sorry, you have a duplicated value in the column")
+        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
+        raise ValueError("Sorry, you have a duplicated value in the column")
 
     currentCage = setOfCells[(i, j)]
 
@@ -94,28 +94,33 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     # initialized with the empty list
     cage_elements = list()
 
+    # If the indexes i,j scanned are also the indexes of a cell contained
+    # in the current cage, then add the current value to the
+    # cage_elements list, otherwise adds the value stored in the sudoku grid
+    # at the indexes i,j
     for row_cell, column_cell in currentCage['cells']:
         if row_cell == i and column_cell == j:
             cage_elements.append(value)
         else:
             cage_elements.append(sudokuGrid[row_cell][column_cell])
 
+    # Sum the values in cage_elements to check that
+    # the sum isn't greater than totalValue
     sumToCheck = sum(cage_elements)
     if sumToCheck > currentCage['totalValue']:
         return False
 
+    # Checks that there aren't 0 values in cage_elements
     if checkBoxesNotContainingZero(cage_elements):
+        # The sum has to be equal to totalValue
         if currentCage['totalValue'] != sumToCheck:
             return False
 
+        # Checks that the cage_elements list is also a set
         if len(set(cage_elements)) != len(cage_elements):
             return False
 
     return True
-
-
-def check(i, j):
-    return i > 0 and j > 0
 
 
 def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
@@ -172,41 +177,45 @@ def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
             inferenceOnPossibleAssignmentsWithMAC(row, column, value, sudokuGrid, setOfCells)
 
 
-def callBacktrack(sudokuGrid, setOfCells):
+def callBacktrackFC(sudokuGrid, setOfCells):
     for i in range(9):
         for j in range(9):
             if sudokuGrid[i][j] == 0:
                 for value in range(1, 10):
                     if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
                         sudokuGrid[i][j] = value
-                        callBacktrack(sudokuGrid, setOfCells)
+                        callBacktrackFC(sudokuGrid, setOfCells)
                         sudokuGrid[i][j] = 0
                 return
-        printSudokuGrid(sudokuGrid)
+        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
 
 
-# def sudokuSolver():
 
 def main():
     # From command line specify the .json file
-    dataSourceFile = 'CagesDataSource.json'  # sys.argv[1]
+    dataSourceFile = 'FirstTestCagesDataSource.json'  # sys.argv[1]
+
     # Opening JSON file
     dataSourceJson = open(dataSourceFile)
+
     # It returns JSON object as a dictionary
     cagesAsDictFromJson = json.load(dataSourceJson)
 
     cages = defineCagesFromJson(cagesAsDictFromJson)
 
+    # Checks for replicated coordinates in cages
     checkCagesNotContainDuplicatedCells(cages)
 
+    # Initialize grid with all 0
     sudokuGrid = initializeSudokuGrid()
 
+    # Assigns the totalValue to each cell of a cage
     assignTotalValueToCellsOfACage(sudokuGrid, cages)
 
     # All the cells of all cages
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
-    callBacktrack(sudokuGrid, setOfCells)
+    callBacktrackFC(sudokuGrid, setOfCells)
 
 
 if __name__ == '__main__':
