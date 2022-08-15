@@ -25,8 +25,6 @@ def assignTotalValueToCellsOfACage(sudokuGrid, cages):
     for cage in cages:
         for i, j in cage['cells']:
             sudokuGrid[i][j] = cage['totalValue']
-
-    UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
     return sudokuGrid
 
 
@@ -179,13 +177,13 @@ def callBacktrackFC(sudokuGrid, setOfCells):
                         callBacktrackFC(sudokuGrid, setOfCells)
                         sudokuGrid[i][j] = 0
                 return
-        UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
+    UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
 
 
 
 def main():
     # From command line specify the .json file
-    dataSourceFile = 'FirstTestCagesDataSource.json'  # sys.argv[1]
+    dataSourceFile = 'SecondTestCagesDataSource.json'  # sys.argv[1]
 
     # Opening JSON file
     dataSourceJson = open(dataSourceFile)
