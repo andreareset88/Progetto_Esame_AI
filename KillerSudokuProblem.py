@@ -171,6 +171,7 @@ def callBacktrackFC(sudokuGrid, setOfCells):
     for i in range(9):
         for j in range(9):
             if sudokuGrid[i][j] == 0:
+                # "value" is the effective value that we try to put on the current cell
                 for value in range(1, 10):
                     if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
                         sudokuGrid[i][j] = value

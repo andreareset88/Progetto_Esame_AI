@@ -8,13 +8,12 @@ N = 4
     side for attacking attempts """
 
 
-def checkForwardAttempt(row, column, chessBoard, n):
-    result = True
+def checkAttemptWithFC(row, column, chessBoard, n):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program exits printing the chess board
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        return chessBoard
+        return True
 
     # Variables used to remember the row and column to which we have to backtrack
     # in case we find an "illegal" column with no available cells
@@ -25,8 +24,9 @@ def checkForwardAttempt(row, column, chessBoard, n):
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
-        if UtilityForAlgorithms.checkBounds(row, i, n) and chessBoard[row][i] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
-                                                                         row, i):
+        if UtilityForAlgorithms.checkBounds(row, i, n) and chessBoard[row][
+            i] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
+                                                          row, i):
             chessBoard[row][i] = placeholder
 
     # Mark the right-upper diagonal as unavailable
@@ -102,7 +102,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
                 freeCellsForColumnI = 0
                 numOfMinCellsAvailable = n
 
-                return checkForwardAttempt(i, columnToInsertValue, chessBoard, n)
+                return checkAttemptWithFC(i, columnToInsertValue, chessBoard, n)
         else:
             if conditionForBacktracking:
 
@@ -139,7 +139,7 @@ def checkForwardAttempt(row, column, chessBoard, n):
                                     chessBoard[row][backupColumnForBacktracking] != 'Q':
                                 backupColumnForBacktracking -= 1
 
-                return checkForwardAttempt(rowForQueenFound, backupColumnForBacktracking, chessBoard, n)
+                return checkAttemptWithFC(rowForQueenFound, backupColumnForBacktracking, chessBoard, n)
 
     return False
 
@@ -155,7 +155,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program prints and return the chess board
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        return chessBoard
+        return True
 
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
@@ -178,7 +178,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             numberOfConstraints += 1
             current_row = index
         elif UtilityForAlgorithms.checkBounds(index, columnToScan,
-                                            n) and not UtilityForAlgorithms.isAFreeCell(
+                                              n) and not UtilityForAlgorithms.isAFreeCell(
             chessBoard, index, columnToScan):
             numberOfConstraints += 1
 
@@ -186,12 +186,15 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # If there isn't any cell in position below the last constraint, the row to scan for insert
     # queen is the first one
     next_row = current_row + 1
+    if next_row >= n:
+        next_row = 0
 
     # We need to iterate on the column, because we can face a not available cell
-    while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not UtilityForAlgorithms.isAFreeCell(chessBoard, next_row, columnToScan):
+    while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not UtilityForAlgorithms.isAFreeCell(
+            chessBoard, next_row, columnToScan):
         next_row += 1
 
-    if next_row > n - 1:
+    if next_row >= n:
         next_row = 0
 
     # Scan the right - adjacent column from next_row to the last row to find if it's possible
@@ -203,10 +206,9 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     continueIteration = True
     cellOnWhichIterate = n - numberOfConstraints
     while next_row < n and cellOnWhichIterate > 0 and continueIteration:
-        if chessBoard[next_row][
-            columnToScan] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
-                                                                     next_row,
-                                                                     columnToScan):
+        if UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and chessBoard[next_row][columnToScan] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard,
+                                                                                         next_row,
+                                                                                         columnToScan):
             # When a cell is free to be inserted a queen, we check if that row already contains a queen
             for j in reversed(range(columnToScan)):
                 if chessBoard[next_row][j] == 'Q':
@@ -255,7 +257,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             # When a queen is to be placed in the column of backtracking, iterate till a not blocked cell is found:
             # in a column you can have 2 or more adjacent not available cells on the same column
             indexRowToInsertQueen += 1
-            while not UtilityForAlgorithms.isAFreeCell(chessBoard,
+            while UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and not UtilityForAlgorithms.isAFreeCell(chessBoard,
                                                        indexRowToInsertQueen,
                                                        columnBack):
                 indexRowToInsertQueen += 1
@@ -263,7 +265,8 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             # If one cell empty and satisfying the constraints is found, then put the queen
             if UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and \
                     chessBoard[indexRowToInsertQueen][
-                        columnBack] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard, indexRowToInsertQueen, columnBack):
+                        columnBack] == '' and UtilityForAlgorithms.isAFreeCell(chessBoard, indexRowToInsertQueen,
+                                                                               columnBack):
                 chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
                 rowForRecursiveCall = indexRowToInsertQueen
                 columnForRecursiveCall = columnBack
@@ -274,49 +277,6 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
 
 
-def findSolutionWithBacktrackingFC(chessBoard, column, n):
-    # Returns true if the queens are positioned
-    if column >= n:
-        UtilityForAlgorithms.printChessBoard(chessBoard, N)
-        return True
-
-    # Further checks to evaluate if the queen can be positioned
-    # in other remaining possibilities
-    for i in range(n):
-        if checkForwardAttempt(i, column, chessBoard, n):
-            # Queen is positioned
-            chessBoard[i][column] = 1
-
-        # Recursive invocation for the remaining queens
-        if findSolutionWithBacktrackingFC(chessBoard, column + 1, n):
-            return True
-
-        chessBoard[i][column] = 0
-
-    return False
-
-
-def findSolutionWithBacktrackingMAC(chessBoard, column, n):
-    # Returns true if the queens are positioned
-    if column >= n:
-        UtilityForAlgorithms.printChessBoard(chessBoard, N)
-        return True
-
-    # Further checks to evaluate if the queen can be positioned
-    # in other remaining possibilities
-    for i in range(1, n):
-        if checkAttemptWithMAC(chessBoard, i, column, n):
-            # Queen is positioned
-            chessBoard[i][column] = 1
-            # Recursive invocation for the remaining queens
-            if findSolutionWithBacktrackingMAC(chessBoard, column + 1, n):
-                return True
-
-            chessBoard[i][column] = 0
-
-    return False
-
-
 def main():
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
@@ -324,12 +284,13 @@ def main():
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
     version = int(input("Press 1 for FC, 2 for MAC:"))
     if version == 1:
-        result = findSolutionWithBacktrackingFC(chessBoard, 0, N)
+        result = checkAttemptWithFC(0, 0, chessBoard, N)
     else:
-        result = findSolutionWithBacktrackingMAC(chessBoard, 0, N)
+        result = checkAttemptWithMAC(chessBoard, 0, 0, N)
+    print("\n")
+    print("\n")
     if not result:
         print("Error, it doesn't exist a solution")
-    UtilityForAlgorithms.printChessBoard(chessBoard, N)
 
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
     #
