@@ -15,6 +15,8 @@ class UtilityForAlgorithms:
     def checkBounds(x, y, n):
         return 0 <= x <= n - 1 and 0 <= y <= n - 1
 
+    # Function that initializes the chess board for the blocked n queens problem with some cells
+    # marked as forbidden ('F')
     @staticmethod
     def initializeGridExcludingSpecifiedValuesInBlockedNQueens(chessBoard, notAllowedValues):
         for row, column in notAllowedValues:
@@ -29,6 +31,8 @@ class UtilityForAlgorithms:
 
         return result
 
+    # Function that checks if there's a queen positioned in the last column of the chess board;
+    # if there is, the solution has been found and the chess board is printed
     @staticmethod
     def allQueensPositioned(chessBoard, column, n):
         result = False
@@ -44,7 +48,7 @@ class UtilityForAlgorithms:
 
         return result
 
-
+    # Function that prints the sudoku grid
     @staticmethod
     def printSudokuGrid(sudokuGrid):
         for i in range(9):

@@ -7,7 +7,7 @@ from UtilityForAlgorithms import UtilityForAlgorithms
 
 N = 4
 
-""" This function , using forward checking, checks the attempt you're trying to perform; 
+""" This function, using forward checking, checks the attempt you're trying to perform; 
     the function will be used when the queens have been placed from
     0 to N-1 columns, because in this way we can only check the right
     side for attacking attempts """
@@ -256,8 +256,12 @@ def main():
     chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     version = int(input("Press 1 for FC, 2 for MAC:"))
     if version == 1:
+        print("Solution found with Forward Checking:")
+        print("\n")
         result = checkAttemptWithFC(0, 0, chessBoard, N)
     else:
+        print("Solution found with MAC:")
+        print("\n")
         result = checkAttemptWithMAC(chessBoard, 0, 0, N)
     print("\n")
     if not result:

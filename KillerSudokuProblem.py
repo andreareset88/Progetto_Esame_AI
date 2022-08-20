@@ -287,8 +287,8 @@ def main():
     # the list of all the cells of that cage
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
-    # callBacktrackFC(sudokuGrid, setOfCells)
-    callBacktrackMAC(sudokuGrid, setOfCells)
+    callBacktrackFC(sudokuGrid, setOfCells)
+    # callBacktrackMAC(sudokuGrid, setOfCells)
 
 
 if __name__ == '__main__':
