@@ -112,124 +112,6 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     return True
 
 
-def inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
-    duplicatedValuesInSquares = containsDuplicatedValuesInSquares(sudokuGrid, value, i, j)
-    duplicatedValuesInRows = containsDuplicatedValuesInRows(sudokuGrid, value, i)
-    duplicatedValuesInColumns = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
-
-    if duplicatedValuesInSquares:
-        return False
-
-    if duplicatedValuesInRows:
-        return False
-
-    if duplicatedValuesInColumns:
-        return False
-
-    currentCage = setOfCells[(i, j)]
-
-    # Cage elements is a list containing the real values
-    # initialized with the empty list
-    cage_elements = list()
-
-    # If the indexes i,j scanned are also the indexes of a cell contained
-    # in the current cage, then add the current value to the
-    # cage_elements list, otherwise adds the value stored in the sudoku grid
-    # at the indexes i,j
-    for row_cell, column_cell in currentCage['cells']:
-        if row_cell == i and column_cell == j or row_cell == i and column_cell == j - 1 or row_cell == i and column_cell == j + 1\
-                or row_cell == i - 1 and column_cell == j or row_cell == i + 1 and column_cell == j:
-            cage_elements.append(value)
-        else:
-            cage_elements.append(sudokuGrid[row_cell][column_cell])
-
-    # Sum the values in cage_elements to check that
-    # the sum isn't greater than totalValue
-    sumToCheck = sum(cage_elements)
-    if sumToCheck > currentCage['totalValue']:
-        return False
-
-    # Checks that there aren't 0 values in cage_elements
-    if checkBoxesNotContainingZero(cage_elements):
-        # The sum has to be equal to totalValue
-        if currentCage['totalValue'] != sumToCheck:
-            return False
-
-        # Checks that the cage_elements list is also a set
-        if len(set(cage_elements)) != len(cage_elements):
-            return False
-
-    return True
-
-
-def inferenceOnPossibleAssignmentsWithMACOLD(i, j, value, sudokuGrid, setOfCells):
-    currentCage = setOfCells[(i, j)]
-
-    # Scan all the cells of each cage, starting from the column at the leftmost position
-    # and find the couple of indexes that represents the indexes of the leftmost cell
-    # of the cage
-    minColumnIndexForCellsInCages = 1
-    minRowIndexForCellsInCages = 1
-    for row, column in currentCage['cells']:
-        if column <= minColumnIndexForCellsInCages and row <= minRowIndexForCellsInCages:
-            minRowIndexForCellsInCages = row
-            minColumnIndexForCellsInCages = column
-
-    cageAdjacentCells = list()
-
-    # Scan all the elements of the cage, in order to find the adjacent ones
-    for row, column in currentCage['cells']:
-
-        # Scanning the elements on the same cage, checking the above and below row,
-        # and the adjacent column
-        if sudokuGrid[row][column] != 0 and row == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages + 1:
-            cageAdjacentCells.append([row, column])
-        if sudokuGrid[row][column] != 0 and row - 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
-            cageAdjacentCells.append([row, column])
-        if sudokuGrid[row][
-            column] != 0 and row + 1 == minRowIndexForCellsInCages and column == minColumnIndexForCellsInCages:
-            cageAdjacentCells.append([row, column])
-
-    # Before insert the value, check that it satisfies the constraints
-    # existing on the grid
-
-    # Collect adjacent cells without value
-
-    adjacentCellsWithoutValue = list()
-    for row, column in cageAdjacentCells:
-        if sudokuGrid[row][column] == 0:
-            adjacentCellsWithoutValue.append([row, column])
-
-    # Iterate on all the adjacent cells and verify if the value can be assigned
-    # to one of these cells, otherwise re-iterate on those cells
-    for row, column in adjacentCellsWithoutValue:
-        for val in range(1, 10):
-
-            isDuplicatedValuesInSquare = containsDuplicatedValuesInSquares(sudokuGrid, val, row, column)
-            isDuplicatedValuesInRow = containsDuplicatedValuesInRows(sudokuGrid, val, row)
-            isDuplicatedValuesInColumn = containsDuplicatedValuesInColumns(sudokuGrid, val, column)
-            # Sum the values in cage_elements to check that
-            # the sum isn't greater than totalValue
-            sumToCheck = sum(cage_elements)
-            if sumToCheck > currentCage['totalValue']:
-                return False
-
-            # Checks that there aren't 0 values in cage_elements
-            if checkBoxesNotContainingZero(cage_elements):
-                # The sum has to be equal to totalValue
-                if currentCage['totalValue'] != sumToCheck:
-                    return False
-
-                # Checks that the cage_elements list is also a set
-                if len(set(cage_elements)) != len(cage_elements):
-                    return False
-
-            if not isDuplicatedValuesInSquare and not isDuplicatedValuesInRow and not isDuplicatedValuesInColumn:
-                sudokuGrid[row][column] = val
-            else:
-                inferenceOnPossibleAssignmentsWithMAC(row, column, val, sudokuGrid, setOfCells)
-
-
 def callBacktrackFC(sudokuGrid, setOfCells):
     for i in range(9):
         for j in range(9):
@@ -239,20 +121,6 @@ def callBacktrackFC(sudokuGrid, setOfCells):
                     if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
                         sudokuGrid[i][j] = value
                         callBacktrackFC(sudokuGrid, setOfCells)
-                        sudokuGrid[i][j] = 0
-                return
-    UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
-
-
-def callBacktrackMAC(sudokuGrid, setOfCells):
-    for i in range(9):
-        for j in range(9):
-            if sudokuGrid[i][j] == 0:
-                # "value" is the effective value that we try to put on the current cell
-                for value in range(1, 10):
-                    if inferenceOnPossibleAssignmentsWithMAC(i, j, value, sudokuGrid, setOfCells):
-                        sudokuGrid[i][j] = value
-                        callBacktrackMAC(sudokuGrid, setOfCells)
                         sudokuGrid[i][j] = 0
                 return
     UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
@@ -288,7 +156,6 @@ def main():
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
     callBacktrackFC(sudokuGrid, setOfCells)
-    # callBacktrackMAC(sudokuGrid, setOfCells)
 
 
 if __name__ == '__main__':
