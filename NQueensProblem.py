@@ -253,62 +253,75 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
 def main():
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
-    chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    version = int(input("Press 1 for FC, 2 for MAC:"))
-    if version == 1:
-        print("Solution found with Forward Checking:")
-        print("\n")
-        result = checkAttemptWithFC(0, 0, chessBoard, N)
-    else:
-        print("Solution found with MAC:")
-        print("\n")
-        result = checkAttemptWithMAC(chessBoard, 0, 0, N)
-    print("\n")
-    if not result:
-        print("Error, it doesn't exist a solution")
-
+    # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    # version = int(input("Press 1 for FC, 2 for MAC:"))
+    # if version == 1:
+    #     print("Solution found with Forward Checking:")
+    #     print("\n")
+    #     result = checkAttemptWithFC(0, 0, chessBoard, N)
+    # else:
+    #     print("Solution found with MAC:")
+    #     print("\n")
+    #     result = checkAttemptWithMAC(chessBoard, 0, 0, N)
+    # print("\n")
+    # if not result:
+    #     print("Error, it doesn't exist a solution")
+    #
+    # print("Waiting 10 seconds before main tests...")
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
-    #
-    #
-    # values = np.arange(2, 21)
-    # sumFC = []
-    # sumMAC = []
-    # for n in values:  # Chess board's dimensions from 2x2 to 20x20
-    #     chessBoard = []
-    #     sumFC = []
-    #     sumMAC = []
-    #
-    #     for k in range(50):  # Execute 50 times for every dimension
-    #         for i in range(n + 1):
-    #             for j in range(n + 1):
-    #                 chessBoard[i][j] = ''  # Initialize the chess board
-    #
-    #         chessBoard[0][0] = 'Q'
-    #         start = timer()
-    #         result = findSolutionWithBacktrackingFC(chessBoard, 0, n)
-    #         end = timer()
-    #         sumFC.append(end - start)
-    #         if not result:
-    #             print("It doesn't exist a solution with FC")
-    #
-    #     chessBoard = []
-    #
-    #     for k in range(50):  # Execute 50 times for every dimension
-    #         for i in range(n + 1):
-    #             for j in range(n + 1):
-    #                 chessBoard[i][j] = ''  # Initialize the chess board
-    #
-    #         chessBoard[0][0] = 'Q'
-    #         start = timer()
-    #         result = findSolutionWithBacktrackingMAC(chessBoard, 0, n)
-    #         end = timer()
-    #         sumMAC.append(end - start)
-    #         if not result:
-    #             print("It doesn't exist a solution with MAC")
-    #
-    # plt.plot(values, sumFC, marker="o", color="red")
-    # plt.plot(values, sumMAC, marker="o", color="green")
-    # plt.show()
+
+    values = np.arange(2, 21)
+    sumFC = []
+    sumMAC = []
+    for n in values:  # Chess board's dimensions from 2x2 to 20x20
+        # chessBoard = []
+        sumFC = []
+        sumMAC = []
+        rows = n
+        cols = n
+        total = 0
+
+        for k in range(50):  # Execute 50 times for every dimension
+            chessBoard = [[''] * cols] * rows
+            # for i in range(n + 1):
+            #     for j in range(n + 1):
+            #         chessBoard[i][j] = ''  # Initialize the chess board
+
+            chessBoard[0][0] = 'Q'
+            start = timer()
+            result = checkAttemptWithFC(0, 0, chessBoard, n)
+            end = timer()
+            total += end - start
+            # chessBoard = []
+            if not result:
+                print("It doesn't exist a solution with FC")
+        avg = total / n
+        sumFC.append(avg)
+        total = 0
+
+        # chessBoard = []
+
+        for k in range(50):  # Execute 50 times for every dimension
+            chessBoard = [[''] * cols] * rows
+
+            # for i in range(n + 1):
+            #     for j in range(n + 1):
+            #         chessBoard[i][j] = ''  # Initialize the chess board
+
+            chessBoard[0][0] = 'Q'
+            start = timer()
+            result = checkAttemptWithMAC(chessBoard, 0, 0, n)
+            end = timer()
+            total += end - start
+            # chessBoard = []
+            if not result:
+                print("It doesn't exist a solution with MAC")
+        avg = total / n
+        sumMAC.append(avg)
+
+    plt.plot(values, sumFC, marker="o", color="red")
+    plt.plot(values, sumMAC, marker="o", color="green")
+    plt.show()
     return True
 
 
