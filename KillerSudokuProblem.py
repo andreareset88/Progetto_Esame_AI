@@ -128,7 +128,7 @@ def callBacktrackFC(sudokuGrid, setOfCells):
 
 def main():
     # From command line specify the .json file
-    dataSourceFile = 'FirstTestCagesDataSource.json'  # sys.argv[1]
+    dataSourceFile = 'FirstTestCagesDataSource.json'
 
     # Opening JSON file
     dataSourceJson = open(dataSourceFile)

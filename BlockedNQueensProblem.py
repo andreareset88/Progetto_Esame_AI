@@ -1,3 +1,5 @@
+import time
+from timeit import default_timer as timer
 from UtilityForAlgorithms import UtilityForAlgorithms
 
 N = 4
@@ -274,19 +276,39 @@ def main():
 
     # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
-    version = int(input("Press 1 for FC, 2 for MAC:"))
-    if version == 1:
-        print("Solution found with Forward Checking:")
-        print("\n")
-        result = checkAttemptWithFC(0, 0, chessBoard, N)
-    else:
-        print("Solution found with MAC:")
-        print("\n")
-        result = checkAttemptWithMAC(chessBoard, 0, 0, N)
-    print("\n")
-    print("\n")
-    if not result:
-        print("Error, it doesn't exist a solution")
+    # version = int(input("Press 1 for FC, 2 for MAC:"))
+    # if version == 1:
+    #     print("Solution found with Forward Checking:")
+    #     print("\n")
+    #     result = checkAttemptWithFC(0, 0, chessBoard, N)
+    # else:
+    #     print("Solution found with MAC:")
+    #     print("\n")
+    #     result = checkAttemptWithMAC(chessBoard, 0, 0, N)
+    # print("\n")
+    # print("\n")
+    # if not result:
+    #     print("Error, it doesn't exist a solution")
+    #
+    # time.sleep(10)  # Wait 10 seconds before the main part of tests
+
+    start = timer()
+    for k in range(1000):
+        result2 = checkAttemptWithFC(0, 0, chessBoard, N)
+        chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
+    end = timer()
+    totalFC = end - start
+    print("Total with FC: " + str(totalFC))
+
+    time.sleep(10)
+
+    start = timer()
+    for k in range(1000):
+        result2 = checkAttemptWithMAC(chessBoard, 0, 0, N)
+        chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
+    end = timer()
+    totalMAC = end - start
+    print("Total with MAC: " + str(totalMAC))
 
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
     #
