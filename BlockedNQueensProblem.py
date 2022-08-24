@@ -276,21 +276,24 @@ def main():
 
     # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
-    # version = int(input("Press 1 for FC, 2 for MAC:"))
-    # if version == 1:
-    #     print("Solution found with Forward Checking:")
-    #     print("\n")
-    #     result = checkAttemptWithFC(0, 0, chessBoard, N)
-    # else:
-    #     print("Solution found with MAC:")
-    #     print("\n")
-    #     result = checkAttemptWithMAC(chessBoard, 0, 0, N)
-    # print("\n")
-    # print("\n")
-    # if not result:
-    #     print("Error, it doesn't exist a solution")
-    #
-    # time.sleep(10)  # Wait 10 seconds before the main part of tests
+    version = int(input("Press 1 for FC, 2 for MAC:"))
+    if version == 1:
+        print("Solution found with Forward Checking:")
+        print("\n")
+        result = checkAttemptWithFC(0, 0, chessBoard, N)
+    else:
+        print("Solution found with MAC:")
+        print("\n")
+        result = checkAttemptWithMAC(chessBoard, 0, 0, N)
+    print("\n")
+    print("\n")
+    if not result:
+        print("Error, it doesn't exist a solution")
+
+    time.sleep(10)  # Wait 10 seconds before the main part of tests
+
+
+                            # THIS TEST WORKS, BUT IF WE IMPROVE IT, IT'S BETTER
 
     start = timer()
     for k in range(1000):
@@ -309,6 +312,8 @@ def main():
     end = timer()
     totalMAC = end - start
     print("Total with MAC: " + str(totalMAC))
+
+                            # THIS IS THE KIND OF TEST I WANTED TO MAKE, BUT IT DOESN'T WORK
 
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
     #
