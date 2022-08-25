@@ -9,6 +9,8 @@ class UtilityForAlgorithms:
                     print("\"\"", end=" ")
                 print(chessBoard[i][j], end=" ")
             print("\n")
+        print("-----------------")
+        print("\n")
 
     # Function that checks the bounds of the indexes of the chess board
     @staticmethod

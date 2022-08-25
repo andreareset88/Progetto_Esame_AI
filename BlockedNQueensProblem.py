@@ -3,6 +3,8 @@ from timeit import default_timer as timer
 from UtilityForAlgorithms import UtilityForAlgorithms
 
 N = 4
+operationsFC = 0
+operationsMAC = 0
 
 """ This function , using forward checking, checks the attempt you're trying to perform; 
     the function will be used when the queens have been placed from
@@ -10,12 +12,13 @@ N = 4
     side for attacking attempts """
 
 
-def checkAttemptWithFC(row, column, chessBoard, n):
+def checkAttemptWithFC(row, column, chessBoard, n, operations):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program exits printing the chess board
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        return True
+        # print("Number of operations for BLOCKED N - Queens Problem with Forward Checking: " + str(operations))
+        return True, operations
 
     # Variables used to remember the row and column to which we have to backtrack
     # in case we find an "illegal" column with no available cells
@@ -29,6 +32,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
         if UtilityForAlgorithms.checkBounds(row, i, n) and chessBoard[row][i] == '' and \
                 UtilityForAlgorithms.isAFreeCell(chessBoard, row, i):
             chessBoard[row][i] = placeholder
+            operations += 1
 
     # Mark the right-upper diagonal as unavailable
     for index in range(1, n):
@@ -37,6 +41,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
         if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '' \
                 and UtilityForAlgorithms.isAFreeCell(chessBoard, index_row, index_col):
             chessBoard[index_row][index_col] = placeholder
+            operations += 1
 
     # Mark the right-down diagonal as unavailable
     for index in range(1, n):
@@ -45,6 +50,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
         if UtilityForAlgorithms.checkBounds(index_row, index_col, n) and chessBoard[index_row][index_col] == '' \
                 and UtilityForAlgorithms.isAFreeCell(chessBoard, index_row, index_col):
             chessBoard[index_row][index_col] = placeholder
+            operations += 1
 
     numOfFreeCells = {}
 
@@ -60,7 +66,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
         currentColumn = column + 1
         # Check, for each column, the rows
         for row in range(n):
-            # The condition not equals to empty includes the check of 'Q' and 'F'
+            # The condition "not equals to empty" includes the check of 'Q' and 'F'
             if chessBoard[row][currentColumn] != '':
                 cellsNotAvailable += 1
 
@@ -93,6 +99,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
             if chessBoard[i][columnToInsertValue] == '' and \
                     UtilityForAlgorithms.isAFreeCell(chessBoard, i, columnToInsertValue):
                 chessBoard[i][columnToInsertValue] = 'Q'
+                operations += 1
 
                 # Reset the dictionary, freeCellsForColumnI, indexScanned and the chess board
                 numOfFreeCells = {}
@@ -100,7 +107,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
                 freeCellsForColumnI = 0
                 numOfMinCellsAvailable = n
 
-                return checkAttemptWithFC(i, columnToInsertValue, chessBoard, n)
+                return checkAttemptWithFC(i, columnToInsertValue, chessBoard, n, operations)
         else:
             if conditionForBacktracking:
 
@@ -116,12 +123,14 @@ def checkAttemptWithFC(row, column, chessBoard, n):
 
                     # Remove 'Q'
                     chessBoard[rowForQueenFound][backupColumnForBacktracking] = ''
+                    operations += 1
 
                     # Rimuovi i vincoli associati ad una regina cancellata
                     for a in range(n):
                         for b in range(n):
                             if chessBoard[a][b] == str(rowForQueenFound) + str(backupColumnForBacktracking):
                                 chessBoard[a][b] = ''
+                                operations += 1
 
                     rowForQueenFound += 1
                     if rowForQueenFound == n:
@@ -137,7 +146,7 @@ def checkAttemptWithFC(row, column, chessBoard, n):
                                     chessBoard[row][backupColumnForBacktracking] != 'Q':
                                 backupColumnForBacktracking -= 1
 
-                return checkAttemptWithFC(rowForQueenFound, backupColumnForBacktracking, chessBoard, n)
+                return checkAttemptWithFC(rowForQueenFound, backupColumnForBacktracking, chessBoard, n, operations)
 
     return False
 
@@ -149,11 +158,12 @@ def checkAttemptWithFC(row, column, chessBoard, n):
     placed queen and put it in the next available row"""
 
 
-def checkAttemptWithMAC(chessBoard, row, column, n):
+def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program prints and return the chess board
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        return True
+        # print("Number of operations for BLOCKED N-Queens problem with MAC: " + str(operations))
+        return True, operations
 
     # Iterate on the adjacent right column, in order
     # to find the first possibility (scan at maximum
@@ -172,6 +182,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
         if UtilityForAlgorithms.checkBounds(index, columnToScan, n) and \
                 UtilityForAlgorithms.isAFreeCell(chessBoard, index, columnToScan):
             chessBoard[index][columnToScan] = placeholder
+            operations += 1
             numberOfConstraints += 1
             current_row = index
         elif UtilityForAlgorithms.checkBounds(index, columnToScan, n) and not \
@@ -226,6 +237,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
     # till a column that can contain a queen is found.
     if isPlaceable:
         chessBoard[next_row][columnToScan] = 'Q'
+        operations += 1
         rowForRecursiveCall = next_row
         columnForRecursiveCall = columnToScan
     else:
@@ -240,6 +252,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
             for indexRow in range(n):
                 if chessBoard[indexRow][columnBack] == 'Q':
                     chessBoard[indexRow][columnBack] = ''
+                    operations += 1
                     eraseConstraints = True
                     indexRowToInsertQueen = indexRow
 
@@ -249,6 +262,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
                         for b in range(n):
                             if chessBoard[a][b] == str(indexRow) + str(columnBack):
                                 chessBoard[a][b] = ''
+                                operations += 1
 
             # When a queen is to be placed in the column of backtracking, iterate till a not blocked cell is found:
             # in a column you can have 2 or more adjacent not available cells on the same column
@@ -262,13 +276,14 @@ def checkAttemptWithMAC(chessBoard, row, column, n):
                     chessBoard[indexRowToInsertQueen][columnBack] == '' and \
                     UtilityForAlgorithms.isAFreeCell(chessBoard, indexRowToInsertQueen, columnBack):
                 chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
+                operations += 1
                 rowForRecursiveCall = indexRowToInsertQueen
                 columnForRecursiveCall = columnBack
                 queenToInsert = False
 
             columnBack -= 1
 
-    return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n)
+    return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n, operations)
 
 
 def main():
@@ -276,42 +291,48 @@ def main():
 
     # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
-    version = int(input("Press 1 for FC, 2 for MAC:"))
-    if version == 1:
-        print("Solution found with Forward Checking:")
-        print("\n")
-        result = checkAttemptWithFC(0, 0, chessBoard, N)
-    else:
-        print("Solution found with MAC:")
-        print("\n")
-        result = checkAttemptWithMAC(chessBoard, 0, 0, N)
-    print("\n")
-    print("\n")
-    if not result:
-        print("Error, it doesn't exist a solution")
+    # version = int(input("Press 1 for FC, 2 for MAC:"))
+    # if version == 1:
+    #     print("Solution found with Forward Checking:")
+    #     print("\n")
+    #     result = checkAttemptWithFC(0, 0, chessBoard, N, operationsFC)
+    # else:
+    #     print("Solution found with MAC:")
+    #     print("\n")
+    #     result = checkAttemptWithMAC(chessBoard, 0, 0, N, operationsMAC)
+    # print("\n")
+    # print("\n")
+    # if not result:
+    #     print("Error, it doesn't exist a solution")
 
-    time.sleep(10)  # Wait 10 seconds before the main part of tests
+    # time.sleep(10)  # Wait 10 seconds before the main part of tests
+    #
+    #
+    #                         # THIS TEST WORKS, BUT IF WE IMPROVE IT, IT'S BETTER
 
-
-                            # THIS TEST WORKS, BUT IF WE IMPROVE IT, IT'S BETTER
-
+    totalOperationsWithFC = 0
     start = timer()
     for k in range(1000):
-        result2 = checkAttemptWithFC(0, 0, chessBoard, N)
-        chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
+        result2, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, N, operationsFC)
+        totalOperationsWithFC += numOperationsWithFC
+        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     end = timer()
-    totalFC = end - start
-    print("Total with FC: " + str(totalFC))
+    totalTimeFC = end - start
+    print("Total time with FC: " + str(totalTimeFC))
+    print("Number of total operations made by Forward Checking: " + str(totalOperationsWithFC))
 
     time.sleep(10)
 
+    totalOperationsWithMAC = 0
     start = timer()
     for k in range(1000):
-        result2 = checkAttemptWithMAC(chessBoard, 0, 0, N)
-        chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
+        result2, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, N, operationsMAC)
+        totalOperationsWithMAC += numOperationsWithMAC
+        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     end = timer()
     totalMAC = end - start
-    print("Total with MAC: " + str(totalMAC))
+    print("Total time with MAC: " + str(totalMAC))
+    print("Number of total operations made by MAC: " + str(totalOperationsWithMAC))
 
                             # THIS IS THE KIND OF TEST I WANTED TO MAKE, BUT IT DOESN'T WORK
 
