@@ -31,7 +31,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
 
     # Mark the line on the right side as unavailable
     for i in range(column + 1, n):
-        if chessBoard[row][i] == '':
+        if UtilityForAlgorithms.checkBounds(row, i, n) and chessBoard[row][i] == '':
             chessBoard[row][i] = placeholder
             operations += 1
 
@@ -70,10 +70,13 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
             if chessBoard[row][currentColumn] != '':
                 cellsNotAvailable += 1
 
-        if cellsNotAvailable == n:
-            conditionForBacktracking = True
 
         numOfFreeCells[currentColumn] = n - cellsNotAvailable
+
+        if cellsNotAvailable == n:
+            conditionForBacktracking = True
+        elif numOfFreeCells[currentColumn] >= 1:
+            break
 
         cellsNotAvailable = 0
 
@@ -84,7 +87,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     freeCellsForColumnI = 0
     indexScanned = 0
 
-    # Iterate on the columns in order to find wich one has the minimum number of free cells
+    # Iterate on the columns in order to find which one has the minimum number of free cells
     for i in numOfFreeCells.keys():
         freeCellsForColumnI = numOfFreeCells[i]
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
@@ -268,7 +271,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
 def main():
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
-    chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     # version = int(input("Press 1 for FC, 2 for MAC:"))
     # if version == 1:
     #     print("Solution found with Forward Checking:")
@@ -285,83 +288,108 @@ def main():
     # print("Waiting 10 seconds before main tests...")
     # time.sleep(10)  # Wait 10 seconds before the main part of tests
 
+    # totalOperationsWithFC = 0
+    # start = timer()
+    # for k in range(1000):
+    #     result2, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, N, operationFC)
+    #     totalOperationsWithFC += numOperationsWithFC
+    #     chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    # end = timer()
+    # totalTimeFC = end - start
+    # print("Total time with FC: " + str(totalTimeFC))
+    # print("Number of totalTime operations made by Forward Checking: " + str(totalOperationsWithFC))
+    #
+    #
+    # time.sleep(10)
+    #
+    # totalOperationsWithMAC = 0
+    # start = timer()
+    # for k in range(1000):
+    #     result2, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, N, operationMAC)
+    #     totalOperationsWithMAC += numOperationsWithMAC
+    #     chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    # end = timer()
+    # totalMAC = end - start
+    # print("Total time with MAC: " + str(totalMAC))
+    # print("Number of totalTime operations made by MAC: " + str(totalOperationsWithMAC))
+
+    values = np.arange(2, 21)
     totalOperationsWithFC = 0
-    start = timer()
-    for k in range(1000):
-        result2, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, N, operationFC)
-        totalOperationsWithFC += numOperationsWithFC
-        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    end = timer()
-    totalTimeFC = end - start
-    print("Total time with FC: " + str(totalTimeFC))
-    print("Number of total operations made by Forward Checking: " + str(totalOperationsWithFC))
-
-
-    time.sleep(10)
-
     totalOperationsWithMAC = 0
-    start = timer()
-    for k in range(1000):
-        result2, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, N, operationMAC)
-        totalOperationsWithMAC += numOperationsWithMAC
-        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    end = timer()
-    totalMAC = end - start
-    print("Total time with MAC: " + str(totalMAC))
-    print("Number of total operations made by MAC: " + str(totalOperationsWithMAC))
-
-    # values = np.arange(2, 21)
-    # sumFC = []
-    # sumMAC = []
+    sumFC = []
+    sumMAC = []
+    numberOfOperationsWithFC = []
+    numberOfOperationsWithMAC = []
     # for n in values:  # Chess board's dimensions from 2x2 to 20x20
     #     # chessBoard = []
-    #     sumFC = []
-    #     sumMAC = []
-    #     rows = n
-    #     cols = n
-    #     total = 0
+    #     # sumFC = []
+    #     # sumMAC = []
+    #     totalTime = 0
     #
     #     for k in range(50):  # Execute 50 times for every dimension
-    #         chessBoard = [[''] * cols] * rows
-    #         # for i in range(n + 1):
-    #         #     for j in range(n + 1):
+    #         chessBoard = [['' for i in range(n)] for j in range(n)]
+    #         # for i in range(n):
+    #         #     for j in range(n):
     #         #         chessBoard[i][j] = ''  # Initialize the chess board
     #
     #         chessBoard[0][0] = 'Q'
     #         start = timer()
-    #         result = checkAttemptWithFC(0, 0, chessBoard, n)
+    #         result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, n, operationFC)
     #         end = timer()
-    #         total += end - start
+    #         totalTime += end - start
+    #         totalOperationsWithFC += numOperationsWithFC
     #         # chessBoard = []
     #         if not result:
     #             print("It doesn't exist a solution with FC")
-    #     avg = total / n
+    #     avg = totalTime / n
     #     sumFC.append(avg)
-    #     total = 0
+    #     numberOfOperationsWithFC.append(totalOperationsWithFC)
+    #     totalTime = 0
     #
     #     # chessBoard = []
     #
     #     for k in range(50):  # Execute 50 times for every dimension
-    #         chessBoard = [[''] * cols] * rows
-    #
-    #         # for i in range(n + 1):
-    #         #     for j in range(n + 1):
+    #         chessBoard = [['' for i in range(n)] for j in range(n)]
+    #         # for i in range(n):
+    #         #     for j in range(n):
     #         #         chessBoard[i][j] = ''  # Initialize the chess board
     #
     #         chessBoard[0][0] = 'Q'
     #         start = timer()
-    #         result = checkAttemptWithMAC(chessBoard, 0, 0, n)
+    #         result, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, n, operationMAC)
     #         end = timer()
-    #         total += end - start
+    #         totalOperationsWithMAC += numOperationsWithMAC
+    #         totalTime += end - start
     #         # chessBoard = []
     #         if not result:
     #             print("It doesn't exist a solution with MAC")
-    #     avg = total / n
+    #     avg = totalTime / n
     #     sumMAC.append(avg)
+    #     numberOfOperationsWithMAC.append(totalOperationsWithMAC)
     #
     # plt.plot(values, sumFC, marker="o", color="red")
     # plt.plot(values, sumMAC, marker="o", color="green")
     # plt.show()
+    # plt.plot(values, numberOfOperationsWithFC, marker="o", color="red")
+    # plt.plot(values, numberOfOperationsWithMAC, marker="o", color="red")
+    # plt.show()
+
+    totalTime = 0
+    chessBoard = [['' for i in range(6)] for j in range(6)]
+    # for i in range(n):
+    #     for j in range(n):
+    #         chessBoard[i][j] = ''  # Initialize the chess board
+
+    chessBoard[0][0] = 'Q'
+    start = timer()
+    result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, 6, operationFC)
+    end = timer()
+    totalTime += end - start
+    totalOperationsWithFC += numOperationsWithFC
+    # chessBoard = []
+    print("Time fc: " + str(totalTime) + ", operations: " + str(totalOperationsWithFC))
+    if not result:
+        print("It doesn't exist a solution with FC")
 
     return True
 
