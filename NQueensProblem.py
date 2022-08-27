@@ -76,6 +76,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
         if cellsNotAvailable == n:
             conditionForBacktracking = True
         elif numOfFreeCells[currentColumn] >= 1:
+            column += 1
             break
 
         cellsNotAvailable = 0
@@ -85,11 +86,14 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     # Find the column with the least number of available cells
     numOfMinCellsAvailable = n
     freeCellsForColumnI = 0
-    indexScanned = 0
+    indexScanned = column
 
     # Iterate on the columns in order to find which one has the minimum number of free cells
     for i in numOfFreeCells.keys():
         freeCellsForColumnI = numOfFreeCells[i]
+        if freeCellsForColumnI == 0:
+            indexScanned = i
+            break
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
             numOfMinCellsAvailable = freeCellsForColumnI
             indexScanned = i
@@ -135,6 +139,8 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
                                 operations += 1
 
                     rowForQueenFound += 1
+                    while rowForQueenFound <= n - 1 and chessBoard[rowForQueenFound][backupColumnForBacktracking] != '':
+                        rowForQueenFound += 1
                     if rowForQueenFound == n:
                         backupColumnForBacktracking -= 1
                     else:
@@ -313,14 +319,14 @@ def main():
     # print("Total time with MAC: " + str(totalMAC))
     # print("Number of totalTime operations made by MAC: " + str(totalOperationsWithMAC))
 
-    values = np.arange(2, 21)
+    values = 4, 5
     totalOperationsWithFC = 0
     totalOperationsWithMAC = 0
     sumFC = []
     sumMAC = []
     numberOfOperationsWithFC = []
     numberOfOperationsWithMAC = []
-    # for n in values:  # Chess board's dimensions from 2x2 to 20x20
+    # for n in values:  # Chess board's defined by values
     #     # chessBoard = []
     #     # sumFC = []
     #     # sumMAC = []
@@ -375,14 +381,14 @@ def main():
     # plt.show()
 
     totalTime = 0
-    chessBoard = [['' for i in range(6)] for j in range(6)]
+    chessBoard = [['' for i in range(5)] for j in range(5)]
     # for i in range(n):
     #     for j in range(n):
     #         chessBoard[i][j] = ''  # Initialize the chess board
 
     chessBoard[0][0] = 'Q'
     start = timer()
-    result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, 6, operationFC)
+    result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, 5, operationFC)
     end = timer()
     totalTime += end - start
     totalOperationsWithFC += numOperationsWithFC
