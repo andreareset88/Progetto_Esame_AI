@@ -296,24 +296,44 @@ def main():
 
     time.sleep(10)  # Wait 10 seconds before the main part of tests
 
-    # MAIN TESTS
+    # ------------------------------------- MAIN TESTS ------------------------------------
 
     values = np.arange(4, 14, 1)  # chessboard dimensions from 4x4 to 13x13
+
+    # Counters for updating the number of total operations for each chessboard's dimension
     totalOperationsWithFC = 0
     totalOperationsWithMAC = 0
-    sumFC = []
-    sumMAC = []
-    numberOfOperationsWithFC = []
-    numberOfOperationsWithMAC = []
+
+    # Counters for updating the number of total operations
     numOpMac = 0
     numOpFc = 0
+
+    # Arrays for storing total operations made
+    numberOfOperationsWithFC = []
+    numberOfOperationsWithMAC = []
+
+    # Counters for updating the total execution time
+    totalTimeFC = 0
+    totalTimeMAC = 0
+
+    # Arrays for storing total execution times
+    sumFC = []
+    sumMAC = []
+
+    # Number of iterations for every dimension
     numIterations = 50
-    for n in values:  # Chess board's defined by values
+
+    # Chessboard's dimensions defined by values (nxn)
+    for n in values:
         totalTime = 0
 
-        for k in range(numIterations):  # Execute 50 times for every dimension
-            chessBoard = [['' for i in range(n)] for j in range(n)]  # Initialize the chessboard
+        # Execute numIterations times for every dimension
+        for k in range(numIterations):
 
+            # Initialize the nxn chessboard with all empty spaces ('')
+            chessBoard = [['' for i in range(n)] for j in range(n)]
+
+            # By default, we put the first 'Q' in the position [0,0]
             chessBoard[0][0] = 'Q'
             start = timer()
             result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, n, operationFC)
@@ -323,17 +343,21 @@ def main():
             if not result:
                 print("It doesn't exist a solution with FC")
 
+        totalTimeFC += totalTime
         avgFC = totalTime / numIterations
         numOpFc += totalOperationsWithFC
         sumFC.append(avgFC)
         numberOfOperationsWithFC.append(totalOperationsWithFC)
         totalTime = 0
 
-        # chessBoard = []
 
-        for k in range(numIterations):  # Execute 50 times for every dimension
-            chessBoard = [['' for i in range(n)] for j in range(n)]  # Initialize the chessboard
+        # Execute numIterations times for every dimension
+        for k in range(numIterations):
 
+            # Initialize the nxn chessboard with empty spaces ('')
+            chessBoard = [['' for i in range(n)] for j in range(n)]
+
+            # By default, we put the first 'Q' in the position [0,0]
             chessBoard[0][0] = 'Q'
             start = timer()
             result, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, n, operationMAC)
@@ -343,6 +367,7 @@ def main():
             if not result:
                 print("It doesn't exist a solution with MAC")
 
+        totalTimeMAC += totalTime
         avg = totalTime / numIterations
         numOpMac += totalOperationsWithMAC
         sumMAC.append(avg)
@@ -353,6 +378,11 @@ def main():
     print("\n")
     print("Total operations made by Forward Checking: " + str(numOpFc))
     print("Total operations made by MAC: " + str(numOpMac))
+    print("\n")
+    print("TOTAL EXECUTION TIMES")
+    print("\n")
+    print("Total execution time with Forward Checking: " + str(totalTimeFC) + " seconds")
+    print("Total execution time with MAC: " + str(totalTimeMAC) + " seconds")
     plt.plot(values, sumFC)
     plt.plot(values, sumMAC)
     plt.xlabel("Values")
