@@ -1,6 +1,8 @@
 import time
 from timeit import default_timer as timer
 from UtilityForAlgorithms import UtilityForAlgorithms
+from matplotlib import pyplot as plt
+import numpy as np
 
 N = 4
 operationsFC = 0
@@ -70,10 +72,14 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
             if chessBoard[row][currentColumn] != '':
                 cellsNotAvailable += 1
 
+        numOfFreeCells[currentColumn] = n - cellsNotAvailable
+
+
         if cellsNotAvailable == n:
             conditionForBacktracking = True
-
-        numOfFreeCells[currentColumn] = n - cellsNotAvailable
+        elif numOfFreeCells[currentColumn] >= 1:
+            column += 1
+            break
 
         cellsNotAvailable = 0
 
@@ -82,11 +88,14 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     # Find the column with the least number of available cells
     numOfMinCellsAvailable = n
     freeCellsForColumnI = 0
-    indexScanned = 0
+    indexScanned = column
 
     # Iterate on the columns in order to find which one has the minimum number of free cells
     for i in numOfFreeCells.keys():
         freeCellsForColumnI = numOfFreeCells[i]
+        if freeCellsForColumnI == 0:
+            indexScanned = i
+            break
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
             numOfMinCellsAvailable = freeCellsForColumnI
             indexScanned = i
@@ -133,6 +142,8 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
                                 operations += 1
 
                     rowForQueenFound += 1
+                    while rowForQueenFound <= n - 1 and chessBoard[rowForQueenFound][backupColumnForBacktracking] != '':
+                        rowForQueenFound += 1
                     if rowForQueenFound == n:
                         backupColumnForBacktracking -= 1
                     else:
@@ -289,96 +300,183 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
 def main():
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
-    # chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
-    # version = int(input("Press 1 for FC, 2 for MAC:"))
-    # if version == 1:
-    #     print("Solution found with Forward Checking:")
-    #     print("\n")
-    #     result = checkAttemptWithFC(0, 0, chessBoard, N, operationsFC)
-    # else:
-    #     print("Solution found with MAC:")
-    #     print("\n")
-    #     result = checkAttemptWithMAC(chessBoard, 0, 0, N, operationsMAC)
-    # print("\n")
-    # print("\n")
-    # if not result:
-    #     print("Error, it doesn't exist a solution")
+    version = int(input("Press 1 for FC, 2 for MAC:"))
+    if version == 1:
+        print("Solution found with Forward Checking:")
+        print("\n")
+        result = checkAttemptWithFC(0, 0, chessBoard, N, operationsFC)
+    else:
+        print("Solution found with MAC:")
+        print("\n")
+        result = checkAttemptWithMAC(chessBoard, 0, 0, N, operationsMAC)
+    print("\n")
+    print("\n")
+    if not result:
+        print("Error, it doesn't exist a solution")
 
-    # time.sleep(10)  # Wait 10 seconds before the main part of tests
-    #
-    #
-    #                         # THIS TEST WORKS, BUT IF WE IMPROVE IT, IT'S BETTER
+    time.sleep(10)  # Wait 10 seconds before the main part of tests
+
+
+    # ------------------------------------------- MAIN TESTS -------------------------------------------
 
     totalOperationsWithFC = 0
-    start = timer()
-    for k in range(1000):
-        result2, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard, N, operationsFC)
-        totalOperationsWithFC += numOperationsWithFC
-        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    end = timer()
-    totalTimeFC = end - start
-    print("Total time with FC: " + str(totalTimeFC))
-    print("Number of total operations made by Forward Checking: " + str(totalOperationsWithFC))
-
-    time.sleep(10)
-
     totalOperationsWithMAC = 0
-    start = timer()
-    for k in range(1000):
-        result2, numOperationsWithMAC = checkAttemptWithMAC(chessBoard, 0, 0, N, operationsMAC)
+    sumFC = []
+    sumMAC = []
+    numberOfOperationsWithFC = []
+    numberOfOperationsWithMAC = []
+    numOpMac = 0
+    numOpFc = 0
+    numIterations = 50
+
+    totalTime = 0
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard4x4, 4, operationsFC)
+        end = timer()
+        totalTime += end - start
+        totalOperationsWithFC += numOperationsWithFC
+        if not result:
+            print("It doesn't exist a solution with FC")
+
+    avgFC = totalTime / numIterations
+    numOpFc += totalOperationsWithFC
+    sumFC.append(avgFC)
+    numberOfOperationsWithFC.append(totalOperationsWithFC)
+    totalTime = 0
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard5x5, 5, operationsFC)
+        end = timer()
+        totalTime += end - start
+        totalOperationsWithFC += numOperationsWithFC
+        if not result:
+            print("It doesn't exist a solution with FC")
+
+    avgFC = totalTime / numIterations
+    numOpFc += totalOperationsWithFC
+    sumFC.append(avgFC)
+    numberOfOperationsWithFC.append(totalOperationsWithFC)
+
+    totalTime = 0
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithFC = checkAttemptWithFC(0, 0, chessBoard6x6, 6, operationsFC)
+        end = timer()
+        totalTime += end - start
+        totalOperationsWithFC += numOperationsWithFC
+        if not result:
+            print("It doesn't exist a solution with FC")
+
+    avgFC = totalTime / numIterations
+    numOpFc += totalOperationsWithFC
+    sumFC.append(avgFC)
+    numberOfOperationsWithFC.append(totalOperationsWithFC)
+
+    totalTime = 0
+
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithMAC = checkAttemptWithMAC(chessBoard4x4, 0, 0, 4, operationsMAC)
+        end = timer()
         totalOperationsWithMAC += numOperationsWithMAC
-        chessBoard = [['Q', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
-    end = timer()
-    totalMAC = end - start
-    print("Total time with MAC: " + str(totalMAC))
-    print("Number of total operations made by MAC: " + str(totalOperationsWithMAC))
+        totalTime += end - start
+        if not result:
+            print("It doesn't exist a solution with MAC")
 
-                            # THIS IS THE KIND OF TEST I WANTED TO MAKE, BUT IT DOESN'T WORK
+    avg = totalTime / numIterations
+    numOpMac += totalOperationsWithMAC
+    sumMAC.append(avg)
+    numberOfOperationsWithMAC.append(totalOperationsWithMAC)
 
-    # time.sleep(10)  # Wait 10 seconds before the main part of tests
-    #
-    #
-    # values = np.arange(2, 21)
-    # sumFC = []
-    # sumMAC = []
-    # for n in values:  # Chess board's dimensions from 2x2 to 20x20
-    #     chessBoard = []
-    #     sumFC = []
-    #     sumMAC = []
-    #
-    #     for k in range(50):  # Execute 50 times for every dimension
-    #         for i in range(n + 1):
-    #             for j in range(n + 1):
-    #                 chessBoard[i][j] = ''  # Initialize the chess board
-    #
-    #         chessBoard[0][0] = 'Q'
-    #         start = timer()
-    #         result = findSolutionWithBacktrackingFC(chessBoard, 0, n)
-    #         end = timer()
-    #         sumFC.append(end - start)
-    #         if not result:
-    #             print("It doesn't exist a solution with FC")
-    #
-    #     chessBoard = []
-    #
-    #     for k in range(50):  # Execute 50 times for every dimension
-    #         for i in range(n + 1):
-    #             for j in range(n + 1):
-    #                 chessBoard[i][j] = ''  # Initialize the chess board
-    #
-    #         chessBoard[0][0] = 'Q'
-    #         start = timer()
-    #         result = findSolutionWithBacktrackingMAC(chessBoard, 0, n)
-    #         end = timer()
-    #         sumMAC.append(end - start)
-    #         if not result:
-    #             print("It doesn't exist a solution with MAC")
-    #
-    # plt.plot(values, sumFC, marker="o", color="red")
-    # plt.plot(values, sumMAC, marker="o", color="green")
-    # plt.show()
+    totalTime = 0
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithMAC = checkAttemptWithMAC(chessBoard5x5, 0, 0, 5, operationsMAC)
+        end = timer()
+        totalOperationsWithMAC += numOperationsWithMAC
+        totalTime += end - start
+        if not result:
+            print("It doesn't exist a solution with MAC")
+
+    avg = totalTime / numIterations
+    numOpMac += totalOperationsWithMAC
+    sumMAC.append(avg)
+    numberOfOperationsWithMAC.append(totalOperationsWithMAC)
+
+    totalTime = 0
+
+    for k in range(numIterations):  # Execute numIterations times for every dimension
+
+        chessBoard4x4, chessBoard5x5, chessBoard6x6 = initializeChessboardsForTests()
+
+        start = timer()
+        result, numOperationsWithMAC = checkAttemptWithMAC(chessBoard6x6, 0, 0, 6, operationsMAC)
+        end = timer()
+        totalOperationsWithMAC += numOperationsWithMAC
+        totalTime += end - start
+        if not result:
+            print("It doesn't exist a solution with MAC")
+
+    avg = totalTime / numIterations
+    numOpMac += totalOperationsWithMAC
+    sumMAC.append(avg)
+    numberOfOperationsWithMAC.append(totalOperationsWithMAC)
+
+    values = np.arange(4, 7, 1)
+
+    print("TOTAL OPERATIONS (including placing a 'Q' and its constraints, "
+          "but also removing them) ")
+    print("\n")
+    print("Total operations made by Forward Checking: " + str(numOpFc))
+    print("Total operations made by MAC: " + str(numOpMac))
+    plt.plot(values, sumFC)
+    plt.plot(values, sumMAC)
+    plt.xlabel("Values")
+    plt.ylabel("Execution times")
+    plt.legend(['Forward Checking', 'MAC'])
+    plt.savefig("TimesBlockedNQueens.png")
+    plt.show()
+    plt.plot(values, numberOfOperationsWithFC)
+    plt.plot(values, numberOfOperationsWithMAC)
+    plt.xlabel("Values")
+    plt.ylabel("Number of operations")
+    plt.legend(['Forward Checking', 'MAC'])
+    plt.savefig("OperationsBlockedNQueens.png")
+    plt.show()
+
+
     return True
+
+
+def initializeChessboardsForTests():
+    chessBoard4x4 = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
+    chessBoard5x5 = [['Q', '', '', '', ''], ['F', 'F', '', '', ''], ['', '', '', 'F', ''], ['', 'F', '', '', ''],
+                     ['', '', '', '', 'F']]
+    chessBoard6x6 = [['Q', '', '', '', '', ''], ['F', 'F', '', '', '', ''], ['', '', '', 'F', '', ''],
+                     ['', 'F', '', '', '', ''], ['', '', '', '', 'F', ''], ['', '', 'F', '', '', '']]
+    return chessBoard4x4, chessBoard5x5, chessBoard6x6
 
 
 if __name__ == '__main__':

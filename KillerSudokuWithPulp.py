@@ -64,11 +64,12 @@ def applyConstraintsOfOneValueForEachCell(performableChoices, sudokuProblem):
 # the sudoku problem and to ensure that each bunch
 # has one occurrence of each number from 1 to 9
 def applyConstraintsForCheckingNotDuplicates(performableChoices, sudokuProblem, bunchesWithoutDuplicates):
+    countCheck = []
     for value in range(1, 10):
         for bunch in bunchesWithoutDuplicates:
             for row, column in bunch:
                 countCheck = [performableChoices[row][column][value] for row, column in bunch]
-                sudokuProblem += pulp.lpSum(countCheck) <= 1
+            sudokuProblem += pulp.lpSum(countCheck) <= 1
 
     return sudokuProblem
 
@@ -152,57 +153,55 @@ def main():
         print("Error!", file=sys.stderr)
         raise SystemExit(1)
 
-    print(f'Solution Status = {pulp.LpStatus[sudokuProblem.status]}')
-
-    # Code to extract the final solution grid
-    solution = [[0 for col in range(0, 9)] for row in range(0, 9)]
-    grid_list = []
-    for row in range(0, 9):
-        for col in range(0, 9):
-            for value in range(1, 10):
-                if pulp.value(performableChoices[row][col][value]):
-                    solution[row][col] = value
-
-                    # Print the final solution as a grid
-    print(f"\nFinal result:")
-
-    print("\n\n+ ----------- + ----------- + ----------- +", end="")
-    for row in range(0, 9):
-        print("\n", end="\n|  ")
-        for col in range(0, 9):
-            num_end = "  |  " if ((col + 1) % 3 == 0) else "   "
-            print(solution[row][col], end=num_end)
-
-        if ((row + 1) % 3 == 0):
-            print("\n\n+ ----------- + ----------- + ----------- +", end="")
+    # print(f'Solution Status = {pulp.LpStatus[sudokuProblem.status]}')
+    #
+    # # Code to extract the final solution grid
+    # solution = [[0 for col in range(0, 9)] for row in range(0, 9)]
+    # grid_list = []
+    # for row in range(0, 9):
+    #     for col in range(0, 9):
+    #         for value in range(1, 10):
+    #             if pulp.value(performableChoices[row][col][value]):
+    #                 solution[row][col] = value
+    #
+    #                 # Print the final solution as a grid
+    # print(f"\nFinal result:")
+    #
+    # print("\n\n+ ----------- + ----------- + ----------- +", end="")
+    # for row in range(0, 9):
+    #     print("\n", end="\n|  ")
+    #     for col in range(0, 9):
+    #         num_end = "  |  " if ((col + 1) % 3 == 0) else "   "
+    #         print(solution[row][col], end=num_end)
+    #
+    #     if ((row + 1) % 3 == 0):
+    #         print("\n\n+ ----------- + ----------- + ----------- +", end="")
 
     # varValue is a pulp function that permits to have the best optimization for the variables
     # of the problem
-    # sudokuSolution = [
-    #     [
-    #       int([performableChoices[row][column][value].varValue * value for value in range(1, 10)])
-    #       for column in range(9)
-    #     ]
-    #     for row in range(9)
-    #
-    # ]
+    sudokuSolution = [
+        [
+          int(sum([performableChoices[row][column][value].varValue * value for value in range(1, 10)]))
+          for column in range(9)
+        ]
+        for row in range(9)
+    ]
 
     # assert sudokuSolution[8][7] + sudokuSolution[8][8] == 8
     # assert sudokuSolution[0][0] + sudokuSolution[0][1] == 8
     # assert sudokuSolution[6][8] + sudokuSolution[7][7] + sudokuSolution[7][8] == 18
     # assert sudokuSolution[3][2] + sudokuSolution[4][2] == 8
 
-    # solution = np.array(sudokuSolution)
+    solution = np.array(sudokuSolution)
 
-    # print(solution)
 
     # Assert that the sum of all the values in each row and column is 45,
     # that corresponds to the result of 1+2+3+4+5+6+7+8+9
-    # assert(solution.sum(axis=1) == 45).all()
+    assert(solution.sum(axis=1) == 45).all()
 
-    # assert (solution.sum(axis=0) == 45).all()
+    assert (solution.sum(axis=0) == 45).all()
 
-    # UtilityForAlgorithms.printSudokuGrid(solution)
+    UtilityForAlgorithms.printSudokuGrid(solution)
 
 
 if __name__ == '__main__':
