@@ -344,9 +344,8 @@ def main():
                 print("It doesn't exist a solution with FC")
 
         totalTimeFC += totalTime
-        avgFC = totalTime / numIterations
         numOpFc += totalOperationsWithFC
-        sumFC.append(avgFC)
+        sumFC.append(totalTime)
         numberOfOperationsWithFC.append(totalOperationsWithFC)
         totalTime = 0
 
@@ -368,9 +367,8 @@ def main():
                 print("It doesn't exist a solution with MAC")
 
         totalTimeMAC += totalTime
-        avg = totalTime / numIterations
         numOpMac += totalOperationsWithMAC
-        sumMAC.append(avg)
+        sumMAC.append(totalTime)
         numberOfOperationsWithMAC.append(totalOperationsWithMAC)
 
     print("TOTAL OPERATIONS (including placing a 'Q' and its constraints, "

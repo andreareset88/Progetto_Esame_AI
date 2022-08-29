@@ -1,5 +1,7 @@
 import json
 import sys
+from timeit import default_timer as timer
+from matplotlib import pyplot as plt
 
 # Defines the cages as tuples starting from json format
 from UtilityForAlgorithms import UtilityForAlgorithms
@@ -155,7 +157,10 @@ def main():
     # the list of all the cells of that cage
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
-    callBacktrackFC(sudokuGrid, setOfCells)
+    for i in range(20):
+        callBacktrackFC(sudokuGrid, setOfCells)
+
+
 
 
 if __name__ == '__main__':

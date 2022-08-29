@@ -360,9 +360,8 @@ def main():
             print("It doesn't exist a solution with FC")
 
     totalTimeFC += totalTime
-    avgFC = totalTime / numIterations
     numOpFc += totalOperationsWithFC
-    sumFC.append(avgFC)
+    sumFC.append(totalTime)
     numberOfOperationsWithFC.append(totalOperationsWithFC)
     totalTime = 0
 
@@ -379,9 +378,8 @@ def main():
             print("It doesn't exist a solution with FC")
 
     totalTimeFC += totalTime
-    avgFC = totalTime / numIterations
     numOpFc += totalOperationsWithFC
-    sumFC.append(avgFC)
+    sumFC.append(totalTime)
     numberOfOperationsWithFC.append(totalOperationsWithFC)
 
     totalTime = 0
@@ -399,9 +397,8 @@ def main():
             print("It doesn't exist a solution with FC")
 
     totalTimeFC += totalTime
-    avgFC = totalTime / numIterations
     numOpFc += totalOperationsWithFC
-    sumFC.append(avgFC)
+    sumFC.append(totalTime)
     numberOfOperationsWithFC.append(totalOperationsWithFC)
 
     totalTime = 0
@@ -420,9 +417,8 @@ def main():
             print("It doesn't exist a solution with MAC")
 
     totalTimeMAC += totalTime
-    avg = totalTime / numIterations
     numOpMac += totalOperationsWithMAC
-    sumMAC.append(avg)
+    sumMAC.append(totalTime)
     numberOfOperationsWithMAC.append(totalOperationsWithMAC)
 
     totalTime = 0
@@ -440,9 +436,8 @@ def main():
             print("It doesn't exist a solution with MAC")
 
     totalTimeMAC += totalTime
-    avg = totalTime / numIterations
     numOpMac += totalOperationsWithMAC
-    sumMAC.append(avg)
+    sumMAC.append(totalTime)
     numberOfOperationsWithMAC.append(totalOperationsWithMAC)
 
     totalTime = 0
@@ -460,13 +455,13 @@ def main():
             print("It doesn't exist a solution with MAC")
 
     totalTimeMAC += totalTime
-    avg = totalTime / numIterations
     numOpMac += totalOperationsWithMAC
-    sumMAC.append(avg)
+    sumMAC.append(totalTime)
     numberOfOperationsWithMAC.append(totalOperationsWithMAC)
 
     # Chessboard's dimensions from 4x4 to 6x6
     values = np.arange(4, 7, 1)
+
 
     print("TOTAL OPERATIONS (including placing a 'Q' and its constraints, "
           "but also removing them) ")
