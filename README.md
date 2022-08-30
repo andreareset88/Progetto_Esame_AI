@@ -17,7 +17,7 @@ per poi crearne delle tuple. Troviamo poi una serie di metodi per controllare ch
 propaga i vincoli usando il forward checking, e allo stesso tempo controlla che la somma dei valori all'interno di un cage non superi quella prestabilita dai vincoli del
 problema.
 
-3.KillerSudokuWithPulp.py: 
+3. KillerSudokuWithPulp.py: 
 
 4. BlockedNQueensProblem.py: Tale modulo contiene il codice per la versione blocked del problema delle n regine (https://www.csplib.org/Problems/prob080/). Sostanzialmente troviamo le stesse
 linee di codice del modulo NqueensProblem.py, con alcune aggiunte: infatti la scacchiera verrà inizializzata con alcune celle marcate con 'F' (Forbidden) nelle quali non
