@@ -1,7 +1,5 @@
 import json
-import sys
 from timeit import default_timer as timer
-from matplotlib import pyplot as plt
 
 # Defines the cages as tuples starting from json format
 from UtilityForAlgorithms import UtilityForAlgorithms
@@ -65,19 +63,20 @@ def checkBoxesNotContainingZero(cage_elements):
     return 0 not in cage_elements
 
 
-def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
+def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells, operations):
     duplicatedValuesInSquares = containsDuplicatedValuesInSquares(sudokuGrid, value, i, j)
     duplicatedValuesInRows = containsDuplicatedValuesInRows(sudokuGrid, value, i)
     duplicatedValuesInColumns = containsDuplicatedValuesInColumns(sudokuGrid, value, j)
+    operations += 3
 
     if duplicatedValuesInSquares:
-        return False
+        return False, operations
 
     if duplicatedValuesInRows:
-        return False
+        return False, operations
 
     if duplicatedValuesInColumns:
-        return False
+        return False, operations
 
     currentCage = setOfCells[(i, j)]
 
@@ -94,41 +93,64 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
             cage_elements.append(value)
         else:
             cage_elements.append(sudokuGrid[row_cell][column_cell])
+        operations += 1
 
     # Sum the values in cage_elements to check that
     # the sum isn't greater than totalValue
     sumToCheck = sum(cage_elements)
     if sumToCheck > currentCage['totalValue']:
-        return False
+        operations += 1
+        return False, operations
 
     # Checks that there aren't 0 values in cage_elements
     if checkBoxesNotContainingZero(cage_elements):
         # The sum has to be equal to totalValue
         if currentCage['totalValue'] != sumToCheck:
-            return False
+            operations += 1
+            return False, operations
 
         # Checks that the cage_elements list is also a set
         if len(set(cage_elements)) != len(cage_elements):
-            return False
+            operations += 1
+            return False, operations
 
-    return True
+    return True, operations
 
 
-def callBacktrackFC(sudokuGrid, setOfCells):
+def callBacktrackFC(sudokuGrid, setOfCells, operations, totalNumberOfOperations):
+    totalNumberOfOperations += operations
+
     for i in range(9):
         for j in range(9):
             if sudokuGrid[i][j] == 0:
                 # "value" is the effective value that we try to put on the current cell
                 for value in range(1, 10):
-                    if inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
+                    result, numOp = inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells, operations)
+                    totalNumberOfOperations += numOp
+                    if result:
                         sudokuGrid[i][j] = value
-                        callBacktrackFC(sudokuGrid, setOfCells)
+                        operations += 1
+                        totalNumberOfOperations += operations
+                        print("Partial number of operations: " + str(operations))
+                        callBacktrackFC(sudokuGrid, setOfCells, operations, totalNumberOfOperations)
                         sudokuGrid[i][j] = 0
-                return
+                        operations += 1
+                        totalNumberOfOperations += operations
+                        print("Partial number of operations: " + str(operations))
+
+                operations += 1
+                totalNumberOfOperations += operations
+                return None, totalNumberOfOperations
     UtilityForAlgorithms.printSudokuGrid(sudokuGrid)
 
 
 def main():
+    totalTime = 0
+
+    operationsWithFC = 0
+
+    totalOperationsWithFC = 0
+
     # From command line specify the .json file
     dataSourceFile = 'FirstTestCagesDataSource.json'
 
@@ -157,10 +179,19 @@ def main():
     # the list of all the cells of that cage
     setOfCells = {cell: cage for cage in cages for cell in cage['cells']}
 
-    for i in range(20):
-        callBacktrackFC(sudokuGrid, setOfCells)
+    for i in range(2):
+        start = timer()
+        result, numOper = callBacktrackFC(sudokuGrid, setOfCells, operationsWithFC, totalOperationsWithFC)
+        end = timer()
+        totalTime += end - start
 
+        sudokuGrid = UtilityForAlgorithms.initializeSudokuGrid()
+        assignTotalValueToCellsOfACage(sudokuGrid, cages)
+        sudokuGrid = UtilityForAlgorithms.initializeSudokuGrid()
 
+    print("Total time with Forward Checking: " + str(totalTime) + " seconds")
+    print("\n")
+    print("Total operations made by Forward Checking: " + str(numOper))
 
 
 if __name__ == '__main__':
