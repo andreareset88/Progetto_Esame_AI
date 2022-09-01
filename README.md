@@ -1,4 +1,4 @@
-# Progetto_Esame_AI
+# Progetto per l'esame di AI
 
 Per installare le librerie necessarie:
 ```
