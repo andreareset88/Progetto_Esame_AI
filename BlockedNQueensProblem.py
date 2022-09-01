@@ -5,8 +5,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 N = 4
-operationsFC = 0
-operationsMAC = 0
+
 
 """ This function , using forward checking, checks the attempt you're trying to perform; 
     the function will be used when the queens have been placed from
@@ -18,6 +17,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
 
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program exits printing the chess board
+    operations += n
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
         # print("Number of operations for BLOCKED N - Queens Problem with Forward Checking: " + str(operations))
         return True, operations
@@ -83,7 +83,9 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
 
         cellsNotAvailable = 0
 
+        # Moving forward one column is an operation
         column = column + 1
+        operations += 1
 
     # Find the column with the least number of available cells
     numOfMinCellsAvailable = n
@@ -99,6 +101,8 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
         if freeCellsForColumnI != 0 and freeCellsForColumnI < numOfMinCellsAvailable:
             numOfMinCellsAvailable = freeCellsForColumnI
             indexScanned = i
+
+    operations += 1
 
     # columnToInsertValue is the column with the least number of available cells
     columnToInsertValue = indexScanned
@@ -142,20 +146,25 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
                                 operations += 1
 
                     rowForQueenFound += 1
+                    operations += 1
                     while rowForQueenFound <= n - 1 and chessBoard[rowForQueenFound][backupColumnForBacktracking] != '':
                         rowForQueenFound += 1
+                        operations += 1
                     if rowForQueenFound == n:
                         backupColumnForBacktracking -= 1
+                        operations += 1
                     else:
                         for row in range(rowForQueenFound, n):
                             if chessBoard[row][backupColumnForBacktracking] == '':
                                 chessBoard[row][backupColumnForBacktracking] = 'Q'
+                                operations += 1
                                 rowForQueenFound = row
                                 toContinue = False
                                 break
                             elif row == n - 1 and chessBoard[row][backupColumnForBacktracking] != '' and \
                                     chessBoard[row][backupColumnForBacktracking] != 'Q':
                                 backupColumnForBacktracking -= 1
+                                operations += 1
 
                 return checkAttemptWithFC(rowForQueenFound, backupColumnForBacktracking, chessBoard, n, operations)
 
@@ -172,6 +181,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
 def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # When we are at the last column, we check that each previous column has a queen positioned, so
     # the algorithm is finished and the program prints and return the chess board
+    operations += n
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
         # print("Number of operations for BLOCKED N-Queens problem with MAC: " + str(operations))
         return True, operations
@@ -181,6 +191,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # 3 positions)
     current_row = 0
     columnToScan = column + 1
+    operations += 1
 
     placeholder = str(row) + str(column)
 
@@ -204,15 +215,19 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # If there isn't any cell in position below the last constraint, the row to scan for insert
     # queen is the first one
     next_row = current_row + 1
+    operations += 1
     if next_row >= n:
+        operations += 1
         next_row = 0
 
     # We need to iterate on the column, because we can face a not available cell
     while UtilityForAlgorithms.checkBounds(next_row, columnToScan, n) and not \
             UtilityForAlgorithms.isAFreeCell(chessBoard, next_row, columnToScan):
         next_row += 1
+        operations += 1
 
     if next_row >= n:
+        operations += 1
         next_row = 0
 
     # Scan the right - adjacent column from next_row to the last row to find if it's possible
@@ -238,6 +253,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
                     break
         if not isPlaceable:
             next_row += 1
+            operations += 1
             cellOnWhichIterate -= 1
 
     rowForRecursiveCall = 0
@@ -254,6 +270,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     else:
         # Go back 1 column
         columnBack = columnToScan - 1
+        operations += 1
 
         queenToInsert = True
 
@@ -278,9 +295,11 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
             # When a queen is to be placed in the column of backtracking, iterate till a not blocked cell is found:
             # in a column you can have 2 or more adjacent not available cells on the same column
             indexRowToInsertQueen += 1
+            operations += 1
             while UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and not \
                     UtilityForAlgorithms.isAFreeCell(chessBoard, indexRowToInsertQueen, columnBack):
                 indexRowToInsertQueen += 1
+                operations += 1
 
             # If one cell empty and satisfying the constraints is found, then put the queen
             if UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and \
@@ -293,11 +312,15 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
                 queenToInsert = False
 
             columnBack -= 1
+            operations += 1
 
     return checkAttemptWithMAC(chessBoard, rowForRecursiveCall, columnForRecursiveCall, n, operations)
 
 
 def main():
+    operationsFC = 0
+    operationsMAC = 0
+
     # First of all we use a 4x4 chess board to show that the problem is correctly solved
 
     chessBoard = [['Q', '', '', ''], ['F', 'F', '', ''], ['', '', '', ''], ['', 'F', '', '']]
@@ -346,6 +369,8 @@ def main():
 
     totalTime = 0
 
+    operationsFC = 0
+
     # We execute Forward Checking for every dimension, and then the same for MAC
     for k in range(numIterations):  # Execute numIterations times for every dimension
 
@@ -358,6 +383,8 @@ def main():
         totalOperationsWithFC += numOperationsWithFC
         if not result:
             print("It doesn't exist a solution with FC")
+
+        operationsFC = 0
 
     totalTimeFC += totalTime
     numOpFc += totalOperationsWithFC
@@ -376,6 +403,8 @@ def main():
         totalOperationsWithFC += numOperationsWithFC
         if not result:
             print("It doesn't exist a solution with FC")
+
+        operationsFC = 0
 
     totalTimeFC += totalTime
     numOpFc += totalOperationsWithFC
@@ -396,6 +425,8 @@ def main():
         if not result:
             print("It doesn't exist a solution with FC")
 
+        operationsFC = 0
+
     totalTimeFC += totalTime
     numOpFc += totalOperationsWithFC
     sumFC.append(totalTime)
@@ -403,6 +434,7 @@ def main():
 
     totalTime = 0
 
+    operationsMAC = 0
 
     for k in range(numIterations):  # Execute numIterations times for every dimension
 
@@ -415,6 +447,8 @@ def main():
         totalTime += end - start
         if not result:
             print("It doesn't exist a solution with MAC")
+
+        operationsMAC = 0
 
     totalTimeMAC += totalTime
     numOpMac += totalOperationsWithMAC
@@ -435,6 +469,8 @@ def main():
         if not result:
             print("It doesn't exist a solution with MAC")
 
+        operationsMAC = 0
+
     totalTimeMAC += totalTime
     numOpMac += totalOperationsWithMAC
     sumMAC.append(totalTime)
@@ -454,6 +490,8 @@ def main():
         if not result:
             print("It doesn't exist a solution with MAC")
 
+        operationsMAC = 0
+
     totalTimeMAC += totalTime
     numOpMac += totalOperationsWithMAC
     sumMAC.append(totalTime)
@@ -463,8 +501,7 @@ def main():
     values = np.arange(4, 7, 1)
 
 
-    print("TOTAL OPERATIONS (including placing a 'Q' and its constraints, "
-          "but also removing them) ")
+    print("TOTAL OPERATIONS (including placing a 'Q' and its constraints, but also removing them) ")
     print("\n")
     print("Total operations made by Forward Checking: " + str(numOpFc))
     print("Total operations made by MAC: " + str(numOpMac))
