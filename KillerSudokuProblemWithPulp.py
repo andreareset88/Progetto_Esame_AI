@@ -106,7 +106,7 @@ def testSolve():
     totalTime = 0
     numOfOperations = 0
 
-    for i in range(10):
+    for i in range(50):
         start = timer()
         solution = killerSolver.solve()
         numOfOperations += killerSolver.operations

@@ -126,9 +126,12 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     return True, operations
 
 
+# We try to put the values, checking that they satisfy all the constraints, scanning
+# all the cells of each row
 def callBacktrackFC(sudokuGrid, setOfCells, totalNumberOfOperations):
-
+    # "i" is the row
     for i in range(9):
+        # "j" is the column
         for j in range(9):
             if sudokuGrid[i][j] == 0:
                 # "value" is the effective value that we try to put on the current cell
@@ -180,7 +183,7 @@ def main():
     totalNumOper = 0
     totalOp = 0
 
-    for i in range(10):
+    for i in range(50):
         start = timer()
         result, numOper = callBacktrackFC(sudokuGrid, setOfCells, totalNumOper)
         end = timer()
