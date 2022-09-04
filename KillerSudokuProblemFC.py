@@ -1,11 +1,11 @@
 import json
 from timeit import default_timer as timer
-from KillerSudokuProblemWithPulp import *
 
 # Defines the cages as tuples starting from json format
 from UtilityForAlgorithms import UtilityForAlgorithms
 
 
+# From JSON file, this method creates tuples of cages
 def defineCagesFromJson(json):
     for cage in json:
         cage['cells'] = [tuple(cell) for cell in cage['cells']]
@@ -64,8 +64,11 @@ def checkBoxesNotContainingZero(cage_elements):
     return 0 not in cage_elements
 
 
+# Checks if the "value" for row "i" and column "j" is consistent
+# with all the constraints
 def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
 
+    # Counter for the number of operations
     operations = 0
 
     duplicatedValuesInSquares = containsDuplicatedValuesInSquares(sudokuGrid, value, i, j)
@@ -86,6 +89,8 @@ def inferenceOnPossibleAssignmentsWithFC(i, j, value, sudokuGrid, setOfCells):
     if duplicatedValuesInColumns:
         return False, operations
 
+    # "setOfCells" is the dictionary with the total value as value and
+    # the cells affected by the constraint as key
     currentCage = setOfCells[(i, j)]
 
     # Cage elements is a list containing the real values

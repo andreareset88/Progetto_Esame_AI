@@ -11,8 +11,14 @@ class KillerSudokuSolver:
 
         self.operations = 0
         self.cageConstraints = cagesList
+
+        # Define the problem and the sense (Minimize is the default value)
         self.sudokuProblem = pulp.LpProblem("Killer Sudoku Problem")
         self.operations += 1
+
+        # Creates a dictionary of LpVariables with the correct range of values;
+        # "range(N)" indicates N (=9) rows and N columns, "range(1,10)" is the
+        # range [1,9] for all the values
         self.performableChoices = pulp.LpVariable.dicts(
             "Choice", (range(N), range(N), range(1, 10),), cat="Binary"
         )
@@ -40,15 +46,22 @@ class KillerSudokuSolver:
 
     # Apply constraints on sudoku grid ensuring main constraints of the problem:
     # each cell contains one value, each sub - square contains values from 1 to 9
-    # not duplicated
+    # not duplicated, and each cage must sum equal to its default value
+    # WE DON'T USE THE "==" OPERATOR FOR THE CONSTRAINTS,
+    # BECAUSE IT DOESN'T WORK WITH IT, WEIRD!
     def applyConstraintsOnSudokuGrid(self):
 
+        # Set the objective function to 0, because sudoku doesn't need to minimize
+        # or maximize it
         self.sudokuProblem += (0, "Arbitrary Objective Function")
         self.operations += 1
 
         # Define the constraint of only one value for each cell
         for i in range(9):
             for j in range(9):
+
+                # With lpSum, we sum the number of values for each cell, and
+                # then we check that each cell contains at most one value
                 constraintOnCellValue = (
                         pulp.lpSum([self.performableChoices[i][j][n] for n in range(1, 10)]) <= 1
                 )
@@ -73,6 +86,8 @@ class KillerSudokuSolver:
             constraintsForCages = [
                 self.performableChoices[i][j][n] * n for i, j in cellsList for n in range(1, 10)
             ]
+
+            # Each cage must sum at least totalSum
             self.sudokuProblem += pulp.lpSum(constraintsForCages) >= totalSum
             self.operations += 1
 
@@ -81,7 +96,10 @@ class KillerSudokuSolver:
         self.sudokuProblem.solve()
         self.operations += 1
         if self.sudokuProblem.status != 1:
-            raise AssertionError("Problem not sucessfully solved")
+            raise AssertionError("Problem not successfully solved")
+
+        # "parsedResult" is how we show the solution, that is a list of
+        # values for each row of the grid
         self.parsedResult = [
             [
                 int(sum([self.performableChoices[i][j][value].varValue * value for value in range(1, 10)]))

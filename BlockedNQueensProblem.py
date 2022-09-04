@@ -19,7 +19,6 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     # the algorithm is finished and the program exits printing the chess board
     operations += n
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        # print("Number of operations for BLOCKED N - Queens Problem with Forward Checking: " + str(operations))
         return True, operations
 
     # Variables used to remember the row and column to which we have to backtrack
@@ -145,15 +144,22 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
                                 chessBoard[a][b] = ''
                                 operations += 1
 
+                    # Increase the row (we are moving down)
                     rowForQueenFound += 1
                     operations += 1
+
+                    # Continue increasing the row until we find a free cell
                     while rowForQueenFound <= n - 1 and chessBoard[rowForQueenFound][backupColumnForBacktracking] != '':
                         rowForQueenFound += 1
                         operations += 1
+
+                    # If we arrive at the last row, go back one column
                     if rowForQueenFound == n:
                         backupColumnForBacktracking -= 1
                         operations += 1
                     else:
+
+                        # Find in column "backupColumnForBacktracking" the free cell to put a queen in
                         for row in range(rowForQueenFound, n):
                             if chessBoard[row][backupColumnForBacktracking] == '':
                                 chessBoard[row][backupColumnForBacktracking] = 'Q'

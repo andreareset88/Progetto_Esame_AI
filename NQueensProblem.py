@@ -19,7 +19,6 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     # the algorithm is finished and the program exits printing the chess board
     operations += n
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        # print("Number of operations with Forward Checking: " + str(operations))
         return True, operations
 
     # Variables used to remember the row and column to which we have to backtrack 
@@ -142,15 +141,22 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
                                 chessBoard[a][b] = ''
                                 operations += 1
 
+                    # Increase the row (we are moving down)
                     rowForQueenFound += 1
                     operations += 1
+
+                    # Continue increasing the row until we find a free cell
                     while rowForQueenFound <= n - 1 and chessBoard[rowForQueenFound][backupColumnForBacktracking] != '':
                         rowForQueenFound += 1
                         operations += 1
+
+                    # If we arrive at the last row, go back one column
                     if rowForQueenFound == n:
                         backupColumnForBacktracking -= 1
                         operations += 1
                     else:
+
+                        # Find in column "backupColumnForBacktracking" the free cell to put a queen in
                         for row in range(rowForQueenFound, n):
                             if chessBoard[row][backupColumnForBacktracking] == '':
                                 chessBoard[row][backupColumnForBacktracking] = 'Q'
@@ -171,7 +177,7 @@ def checkAttemptWithFC(row, column, chessBoard, n, operations):
     of the AC-3 algorithm used by MAC: for every queen positioned,
     it detects the forbidden cells in the next right column and, 
     if no queen can be placed safely, than go back to previous 
-    placed queen and put it in the next available row"""
+    placed queen and put it in the next available row """
 
 
 def checkAttemptWithMAC(chessBoard, row, column, n, operations):
@@ -179,7 +185,6 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # the algorithm is finished and the program prints and return the chess board
     operations += n
     if UtilityForAlgorithms.allQueensPositioned(chessBoard, column, n):
-        # print("Number of operations with MAC: " + str(operations))
         return True, operations
 
     # Iterate on the adjacent right column, in order
@@ -203,9 +208,9 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
             numberOfConstraints += 1
             current_row = index
 
-    # next_row is the row from which try to position the queen
+    # next_row is the row from which try to position the queen.
     # If there isn't any cell in position below the last constraint, the row to scan for insert
-    # queen is the first one
+    # in the queen is the first one
     next_row = current_row + 1
     operations += 1
     if next_row > n - 1:
@@ -216,21 +221,27 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # to fill in a queen.
     # The number of cells on which to iterate is the number of total rows - the number of
     # cells containing the constraint of a positioned queen.
-    # The iteration goes ahead only till a queen can't be positioned
+    # The iteration goes ahead only till a queen can't be positioned.
     isPlaceable = True
     continueIteration = True
     cellOnWhichIterate = n - numberOfConstraints
     while next_row < n and cellOnWhichIterate > 0 and continueIteration:
         if chessBoard[next_row][columnToScan] == '':
-            # When a cell is free to be inserted a queen, we check if that row already contains a queen
+            # When a cell is free to be inserted in a queen, we check if that row already contains a queen
+            # We go in reverse order because the columns at right haven't been checked yet.
             for j in reversed(range(columnToScan)):
                 if chessBoard[next_row][j] == 'Q':
                     isPlaceable = False
                     break
+
+                # If the last cell on the row is free, we stop the iteration, and we mark that a queen is placeable
                 elif j == 0:
                     isPlaceable = True
                     continueIteration = False
                     break
+
+        # If we have found a queen in the same row, go to the next row and decrease the number of cells
+        # on which iterate
         if not isPlaceable:
             next_row += 1
             operations += 1
@@ -241,7 +252,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
     # If the column we are scanning contains a cell available to position the queen, then
     # put it in the cell and call the recursion on the indexes of that cell; otherwise,
     # we have to do a backtracking one column at a time (also scanning back all the previous columns)
-    # till a column that can contain a queen is found.
+    # till a column that can contains a queen is found.
     if isPlaceable:
         chessBoard[next_row][columnToScan] = 'Q'
         operations += 1
@@ -254,6 +265,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
 
         queenToInsert = True
 
+        # Remove the last positioned queen, because we have to backtrack
         while columnBack > -1 and queenToInsert:
             indexRowToInsertQueen = 0
             eraseConstraints = False
@@ -276,6 +288,7 @@ def checkAttemptWithMAC(chessBoard, row, column, n, operations):
             operations += 1
 
             # If one cell empty and satisfying the constraints is found, then put the queen
+            # (We go down the previous deleted queen)
             if UtilityForAlgorithms.checkBounds(indexRowToInsertQueen, columnBack, n) and \
                     chessBoard[indexRowToInsertQueen][columnBack] == '':
                 chessBoard[indexRowToInsertQueen][columnBack] = 'Q'
