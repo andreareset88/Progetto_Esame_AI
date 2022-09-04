@@ -23,8 +23,7 @@ per poi crearne delle tuple. Troviamo poi una serie di metodi per controllare ch
 propaga i vincoli usando il forward checking, e allo stesso tempo controlla che la somma dei valori all'interno di un cage non superi quella prestabilita dai vincoli del
 problema.
 
-3. KillerSudokuWithPulp.py: Questo modulo contiene la risoluzione del problema del killer sudoku tramite l'utilizzo della libreria pulp. Viene definito il tipo di problema, le variabili e i rispettivi "range" di valori ammissibili e i vincoli del problema, poi il metodo solve() si occuperà della risoluzione (Il problema è visto come uno di programmazione lineare, con "Minimize" come funzione obiettivo): questo consente un'ottimizzazione lineare del codice.
-
+3. KillerSudokuWithPulp.py: Questo modulo contiene la risoluzione del problema del killer sudoku tramite l'utilizzo della libreria pulp. Viene definito il tipo di problema, le variabili e i rispettivi "range" di valori ammissibili e i vincoli del problema, poi il metodo solve() si occuperà della risoluzione (Il problema è visto come uno di programmazione lineare) (non avendo trovato sufficiente materiale per capire i passi dell'algoritmo facente uso di MAC, è stato scelto di usare questo approccio, il quale consente comunque un'ottimizzazione lineare del codice).
 4. BlockedNQueensProblem.py: Tale modulo contiene il codice per la versione blocked del problema delle n regine (https://www.csplib.org/Problems/prob080/). Sostanzialmente troviamo le stesse
 linee di codice del modulo NqueensProblem.py, con alcune aggiunte: infatti la scacchiera verrà inizializzata con alcune celle marcate con 'F' (Forbidden) nelle quali non
 potrà essere posizionata alcuna regina, e nei metodi per la propagazione dei vincoli già citati verranno aggiunti dei controlli per evitare di piazzare una regina in una 
