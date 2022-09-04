@@ -6,7 +6,17 @@ pip install numpy
 pip install pulp
 ```
 
-Per replicare i risultati ottenuti nei test, è sufficiente aprire con il proprio IDE il progetto ed eseguire i moduli NQueensProblem.py, BlockedNQueensProblem.py, KillerSudokuPrroblemFC.py e KillerSudokuWithPulp.py
+Per replicare i risultati ottenuti nei test, è sufficiente aprire con il proprio IDE il progetto ed eseguire i moduli NQueensProblem.py, BlockedNQueensProblem.py, KillerSudokuPrroblemFC.py e KillerSudokuWithPulp.py; oppure, scaricare la cartella relativa al progetto, aprirla da terminale 
+```
+cd Progetto_Esame_AI
+```
+ed eseguire a scelta i problemi tramite i comandi:
+```
+python3 NQueensProblem.py
+python3 BlockedNQueensProblem.py
+python3 KillerSudokuProblemFC.py
+python3 KillerSudokuProblemWithPulp.py
+```
 
 Questo elaborato, nell'ambito dell'esame di Intelligenza Artificiale, consiste nel testare l'algoritmo di ricerca con backtracking, usando sia forward checking che MAC
 come strategie di propagazione dei vincoli, al fine di trovare la soluzione a 3 CSP scelti a piacere da CSPLib (https://www.csplib.org/).
